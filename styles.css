@@ -1,0 +1,52 @@
+
+
+body {
+  padding: 40px;
+  font-family: sans-serif;
+}
+
+.container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.navbar {
+  margin: 20px;
+  width: 50%;
+  display: flex;
+  justify-content: space-between;
+  align-self: center;
+  border: 5px solid black;
+}
+
+.landing-text {
+  border: 5px solid black;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;     /* ✅ center items horizontally in flex container */
+  justify-content: center; /* ✅ center items vertically if needed */
+  text-align: center;
+  padding: 20px;
+  
+}
+
+.AES-h1 {
+  font-size: 2.5rem;
+  color: #333; 
+}
+.background-text {
+    border: 5px solid black;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 20px
+}
+
+.background-text-content {
+    width: 50%;
+    font-size: 10px;
+}
