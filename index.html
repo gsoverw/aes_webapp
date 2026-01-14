@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="body-text">
+            <div class="main-h1">
+                <h1>
+                    A step-by-step visualization on how the AES algorithm works.
+                </h1>
+            </div>
+            <div class="main-button">
+                <button class="nextButton">
+                    Get Started
+                </button>
+            </div>
+        </div>
+        <div class="main-img">
+            <img src="images/roundFunctionImg.png" alt="roundFunctionImg">
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="body-text">
+            <div class="main-h1">
+                <h1>
+                    A quick recap on AES.
+                </h1>
+            </div>
+            <div class="main-p">
+                <p>
+                    The AES algorithm is a symmetric cipher which means it uses a secret key to encypt and decrypt the plantext.
+                    This key can be 128, 192 or 256 bits in length. This visualization will go through the encryption process of AES-128.
+                </p>
+                <p>
+                    AES encypts your plaintext in 'blocks' of 128 bits, these blocks then go through multiple rounds of encryption before
+                    outputting the final ciphertext. 
+                </p>
+                <p>
+                    Each of these rounds of encryption requries something called a 'round key', this round key is obtained by expanding the 
+                    original key in a process called key expansion. We will first go over this key expansion step before moving onto the encryption part.
+                </p>
+            </div>
+            <div class="main-button">
+                <button class="nextButton">
+                    Key Expansion
+                </button>
+            </div>
+        </div>
+
+        <div class="recap-img">
+            <img src="images/aesRoundOverview.png" alt="roundFunctionImg">
+        </div>
+    </div>
+
+    <div class="key-expansion">
+        <div class="key-explain">
+            <div class="key-body-text">
+                <div class="main-h1">
+                    <h2>
+                        The Key Expansion:
+                    </h2>
+                </div>
+                <div class="key-text">
+                    <p>
+                        The AES key expansion uses the original key to generate 10 other keys. One for each round of the encryption process.
+                        In AES-128 we work with key sizes of 128 bits, here we represent this 128 bit key as 4x4 block where each element is
+                        8bits. (8 * 4 * 4 = 128).
+                    </p>
+
+                    <p>
+                        The rows of our 4x4 block are called 'words', and we will mostly be working with them during the 
+                        expansion process. Here is our original key "2b 7e 15 16 28 ae d2 a6 ab f7 15 88 09 cf 4f 3c" (which we will call K0) as a 4x4 block with words [w0] - [w3].
+                    </p>
+                    <div id="k0">
+                        <canvas id="k0Canvas" width="300" height="150"></canvas>
+                    </div>
+                    <p>
+                        The expansion process has four main components to it. Those being rotWord, sbox, rCon and the final xORs.
+                        We start with the last word of our current key ([w3]) and pass it through each of the three functions mentioned 
+                        eariler.
+                    </p>
+                    <p>
+                        We then take the output of rCon and xOR that with [w0], giving us [w4] which is the first word of K1.
+                        To find the next word [w5], we take [w4] and xOR it with [w1]. Repeat the same process to get [w6] and [w7]. 
+                    </p>
+                    <p>
+                        Now that we have K1 we can use that to find K2, then use K2 to find K3 ect...
+                        Once completed we should have keys K1 to K10.
+                    </p>
+                    <p>
+                        NOTE: K0 is only equal to K in AES-128. 
+                    </p>
+                </div>
+            </div>
+            <div class="rotword-container">
+                <div class="rotWord">
+                    <h2>RotWord:</h2>
+                    <p>
+                        The rotWord function is just a simple left shift of our 4-byte word.
+                        We take the first byte is move it to the back and shift everthing else left.
+                    </p>
+                    <p>
+                        <code>RotWord([b0, b1, b2, b3]) = [b1, b2, b3, b0]</code>
+                    </p>
+                    <div id="rotWordAnimation">
+                        <canvas id="rotWordCanvas0" width="220" height="100"></canvas>
+                        <canvas id="rotWordCanvas1" width="220" height="100"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div id="sBox">
+                <div id="sBoxExplanation">
+                    <h1>
+                        Sbox Explanation:
+                    </h1>
+                    <p>
+                        The sbox subtituion is very simple. We take the first bit of our byte and 
+                        look it up on the y-axis of the sbox table. We do the same for the second 
+                        bit but this time on the x-axis. The intersection of theses values gives
+                        us the output of the sbox. 
+                    </p>
+                    <h2>
+                        Example:
+                    </h2>
+                    <div id="sboxExample">
+                        <div id="row0">
+                            <canvas id="sboxw0" width="40" height="40"></canvas>
+                            <canvas id="sboxw1" width="40" height="40"></canvas>
+                            <canvas id="sboxw2" width="40" height="40"></canvas>
+                            <canvas id="sboxw3" width="40" height="40"></canvas>
+                        </div>
+                        <div id="row1">
+                            <canvas id="sboxArrow0" width="40" height="100"></canvas>
+                            <canvas id="sboxArrow1" width="40" height="100"></canvas>
+                            <canvas id="sboxArrow2" width="40" height="100"></canvas>
+                            <canvas id="sboxArrow3" width="40" height="100"></canvas>
+                        </div>
+                        <div id="row2">
+                            <canvas id="sboxHover0" width="80" height="40"></canvas>
+                            <canvas id="sboxHover1" width="80" height="40"></canvas>
+                            <canvas id="sboxHover2" width="80" height="40"></canvas>
+                            <canvas id="sboxHover3" width="80" height="40"></canvas>
+                        </div>
+                        <div id="row3">
+                            <canvas id="sboxArrowA0" width="40" height="100"></canvas>
+                            <canvas id="sboxArrowA1" width="40" height="100"></canvas>
+                            <canvas id="sboxArrowA2" width="40" height="100"></canvas>
+                            <canvas id="sboxArrowA3" width="40" height="100"></canvas>
+                        </div>
+                        <div id="row4">
+                            <canvas id="sboxR0" width="40" height="40"></canvas>
+                            <canvas id="sboxR1" width="40" height="40"></canvas>
+                            <canvas id="sboxR2" width="40" height="40"></canvas>
+                            <canvas id="sboxR3" width="40" height="40"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div id="sBoxPanel">
+                    <h1>S-Box</h1>
+                    <canvas id="slideSboxFrame1" width="900" height="900"></canvas>
+                    <canvas id="slideSboxFrame2" width="900" height="900"></canvas>
+                    <canvas id="slideSboxFrame3" width="900" height="900"></canvas>
+                </div>
+            </div>
+            <div class="rConContainer">
+                <div class="rConExplain">
+                    <h2>
+                        rCon Step:
+                    </h2>
+                    <p>
+                        rCon is word array. Depending on the round we're on we take the 
+                        corresponding word and xOR it with our word [w3]. We are currently on the first round 
+                        (since we are trying to find K1) which means we our [w3] gets xORed with [01, 00, 00, 00].
+                    </p>
+                    <p>
+                        NOTE: The last three elements of the rCon word are always [00].
+                    </p>
+                    <div id="rConVisual">
+                        <canvas id="rConCanvas0" width="600" height="150"></canvas>
+                        <canvas id="rConCanvas1" width="375" height="260"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div id="keyExpansionEnd">
+                <h2>
+                    Last part:
+                </h2>
+                <p>
+                    Now we can finally start computing the values of K1. 
+                </p>
+                <div id="xORSliding">
+                    <div id="slide0">
+                        <canvas id="slideCanvas0" width="375" height="260"></canvas>
+                    </div>
+                    <div id="slide1">
+                        <canvas id="slideCanvas1" width="375" height="260"></canvas>
+                    </div>
+                    <div id="slide2">
+                        <canvas id="slideCanvas2" width="375" height="260"></canvas>
+                    </div>
+                    <div id="slide3">
+                        <canvas id="slideCanvas3" width="375" height="260"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="expansion-drawing">
+            <h3 id="keyScheduleH3">AES Key Schedule:</h3>
+            <div id="keySchedule">
+                <canvas id="keyScheduleCanvas" width="441" height="570"></canvas>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="scripts/main.js"></script>
+    
+</body>
+</html>

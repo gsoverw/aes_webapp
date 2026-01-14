@@ -2,7 +2,7 @@ const plainText = "Coding is great!";
 const originalKey = "AI is the future";
 const testPT = "32 43 f6 a8 88 5a 30 8d 31 31 98 a2 e0 37 07 34"
 const testKey = "2b 7e 15 16 28 ae d2 a6 ab f7 15 88 09 cf 4f 3c"
-
+const keyArray = testKey;
 
 const sBox = [
     ['63', '7c', '77', '7b', 'f2', '6b', '6f', 'c5', '30', '01', '67', '2b', 'fe', 'd7', 'ab', '76'],
@@ -37,7 +37,7 @@ const rCon = [
     ['36','00','00','00']
 ]
 
-const roundKeys = []
+export const roundKeys = []
 
 const mixColumnsMatrix = []
 
@@ -103,16 +103,17 @@ function subWord(word) {
 function xOR(arr1, arr2) {
 
     // Converts each element into its base 10 form
-    decimalArr1 = arr1.map(curHex => parseInt(curHex, 16))
-    decimalArr2 = arr2.map(curHex => parseInt(curHex, 16))
+    let decimalArr1 = arr1.map(curHex => parseInt(curHex, 16))
+    let decimalArr2 = arr2.map(curHex => parseInt(curHex, 16))
+ 
+     //Preforms the xOR
+    let xOredArr = decimalArr1.map((item, i) => item ^ decimalArr2[i])
+ 
+     //Converts from base 10 back to base 16 (hex)
+    let rArray = xOredArr.map(curDeciVal => curDeciVal.toString(16))
+ 
+    let solutionArray = []
 
-    //Preforms the xOR
-    xOredArr = decimalArr1.map((item, i) => item ^ decimalArr2[i])
-
-    //Converts from base 10 back to base 16 (hex)
-    rArray = xOredArr.map(curDeciVal => curDeciVal.toString(16))
-
-    solutionArray = []
     //For some reason after the elements are converted to base 16 anything
     //less that a value of 10hex does not have a leading zero. This loop is to 
     //add that zero back into the string.
@@ -127,7 +128,7 @@ function xOR(arr1, arr2) {
 }
 
 function rConFunction (arr, roundNumber) {
-    rConArr = rCon[roundNumber]
+    let rConArr = rCon[roundNumber]
 
     return xOR(arr, rConArr)
 
@@ -140,8 +141,8 @@ function gFunction (arr, roundNumber) {
 
 function keyExpantion (key) {
     //keyArray = key.split("").map(k => ascciiToHex(k))
-    keyArray = key.split(" ")
-    
+    let keyArray = key.split(" ")
+
     let keyBlock = []
     
     for (let i = 0; i < 4; i++) {
@@ -311,13 +312,16 @@ function aesEncryption() {
 let plainTextBlock = stateArray(plainText);
 
 console.log(keyExpantion(testKey))
-console.log(aesEncryption(testKey))
+console.log(aesEncryption())
 
 
 
 
 
-
+//I have a JS project which takes a plain text and encrypts it using AES-128 bit. 
+// I want to learn how to take this code and make it into a useful website. 
+// Give me some ideas on how I can do this. One idea I had was to take an educational approach
+//  and make a website that walks through the encryption process step by step. Give me some other ideas
 
 
 
