@@ -53,6 +53,10 @@ export function drawFrame1() {
     ctx.textBaseline = "middle";
 
     ctx.fillText(rect.byteVal, rect.xPOS + rect.width / 2, rect.yPOS + rect.height / 2);
+    ctx.fillText("[0]", rect.width / 2, rect.yPOS + 50 + rect.height / 2);
+    ctx.fillText("[1]", 60 + rect.width / 2, rect.yPOS + 50 + rect.height / 2);
+    ctx.fillText("[2]", 120 + rect.width / 2, rect.yPOS + 50 + rect.height / 2);
+    ctx.fillText("[3]", 180 + rect.width / 2, rect.yPOS + 50 + rect.height / 2);
 
 }
 
@@ -119,7 +123,6 @@ function updateFrame2() {
         startPOS += rectangles[i].width + gap;
        
     }
-
 }
 function animateFrame1() {
     drawFrame1()

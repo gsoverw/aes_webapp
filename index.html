@@ -81,10 +81,14 @@
                         <canvas id="k0Canvas" width="300" height="150"></canvas>
                     </div>
                     <p>
-                        The expansion process has four main components to it. Those being rotWord, sbox, rCon and the final xORs.
-                        We start with the last word of our current key ([w3]) and pass it through each of the three functions mentioned 
-                        eariler.
+                        The expansion process has four main components to it.
+                        We start with the last word of our current key ([w3]) and pass it through each of the following three functions: 
                     </p>
+                    <ul>
+                        <li>RotWord</li>
+                        <li>Sbox</li>
+                        <li>rCon</li>
+                    </ul>
                     <p>
                         We then take the output of rCon and xOR that with [w0], giving us [w4] which is the first word of K1.
                         To find the next word [w5], we take [w4] and xOR it with [w1]. Repeat the same process to get [w6] and [w7]. 
@@ -103,15 +107,17 @@
                     <h2>RotWord:</h2>
                     <p>
                         The rotWord function is just a simple left shift of our 4-byte word.
-                        We take the first byte is move it to the back and shift everthing else left.
+                        We take the index of each byte and lower it by one, the 0th element becomes our last element.
+                        
                     </p>
                     <p>
                         <code>RotWord([b0, b1, b2, b3]) = [b1, b2, b3, b0]</code>
                     </p>
                     <div id="rotWordAnimation">
-                        <canvas id="rotWordCanvas0" width="220" height="100"></canvas>
-                        <canvas id="rotWordCanvas1" width="220" height="100"></canvas>
+                        <canvas id="rotWordCanvas0" width="220" height="200"></canvas>
+                        <canvas id="rotWordCanvas1" width="220" height="200"></canvas>
                     </div>
+                    <div id="rotWordAnimation2"></div>
                 </div>
             </div>
             <div id="sBox">
@@ -175,15 +181,15 @@
                     </h2>
                     <p>
                         rCon is word array. Depending on the round we're on we take the 
-                        corresponding word and xOR it with our word [w3]. We are currently on the first round 
-                        (since we are trying to find K1) which means we our [w3] gets xORed with [01, 00, 00, 00].
+                        corresponding word from rCon and xOR it with the sbox output. We are currently on the first round 
+                        (since we are trying to find K1) which means our sbox output gets xORed with [01, 00, 00, 00].
                     </p>
                     <p>
-                        NOTE: The last three elements of the rCon word are always [00].
+                        NOTE: The last three elements of an rCon word are always [00].
                     </p>
                     <div id="rConVisual">
                         <canvas id="rConCanvas0" width="600" height="150"></canvas>
-                        <canvas id="rConCanvas1" width="375" height="260"></canvas>
+                        <canvas id="rConCanvas1" width="470" height="260"></canvas>
                     </div>
                 </div>
             </div>
@@ -192,28 +198,135 @@
                     Last part:
                 </h2>
                 <p>
-                    Now we can finally start computing the values of K1. 
+                    Now we can finally start computing the values of K1 ( [w4] - [w7] ). 
                 </p>
                 <div id="xORSliding">
                     <div id="slide0">
-                        <canvas id="slideCanvas0" width="375" height="260"></canvas>
+                        <canvas id="slideCanvas0" width="470" height="260"></canvas>
                     </div>
                     <div id="slide1">
-                        <canvas id="slideCanvas1" width="375" height="260"></canvas>
+                        <canvas id="slideArrowCanvas1" width="130" height="260"></canvas>
+                        <canvas id="slideCanvas1" width="470" height="260"></canvas>
                     </div>
                     <div id="slide2">
-                        <canvas id="slideCanvas2" width="375" height="260"></canvas>
+                        <canvas id="slideArrowCanvas2" width="130" height="260"></canvas>
+                        <canvas id="slideCanvas2" width="470" height="260"></canvas>
                     </div>
                     <div id="slide3">
-                        <canvas id="slideCanvas3" width="375" height="260"></canvas>
+                        <canvas id="slideArrowCanvas3" width="130" height="260"></canvas>
+                        <canvas id="slideCanvas3" width="470" height="260"></canvas>
                     </div>
                 </div>
+                <div id="k1">
+                    <canvas id="k1Canvas" width="300" height="150"></canvas>
+                </div>
+                <p>
+                    We have found k1. Which means we can use k1 to find k2 ( [w8] - [w11] ). Keep repeating this process until we have k1 - k10.
+                    Given below is a full key expansion with the rest of our round keys.
+                </p>
             </div>
         </div>
         <div class="expansion-drawing">
             <h3 id="keyScheduleH3">AES Key Schedule:</h3>
             <div id="keySchedule">
                 <canvas id="keyScheduleCanvas" width="441" height="570"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="expansion-example">
+        <h2>Full example of each step.</h2>
+        <div id="keyExampleNavBar">
+            <div>
+                <h3><i>i</i></h3>
+            </div>
+            <div>
+                <h3><i>temp</i></h3>
+            </div>
+            <div>
+                <h3>After</h3>
+                <h3><i>RotWord()</i></h3>
+            </div>
+            <div>
+                <h3>After</h3>
+                <h3><i>SubWord()</i></h3>
+            </div>
+            <div>
+                <h3><i>Rcon[]</i></h3>
+                <h3>Value</h3>
+            </div>
+            <div>
+                <h3><i>g()</i></h3>
+                <h3>output</h3>
+            </div>
+            <div>
+                <h3>w[i - Nk]</h3>
+            </div>
+            <div>
+                <h3><i>temp</i> ⊕ </h3>
+                <h3>w[i - Nk]</h3>
+            </div>
+        </div>
+        <div id="keCalculationDiv">
+            <canvas id="keCalculation" width="1300" height="1500"></canvas>
+        </div>
+    </div>
+
+    <div id="encryption">
+        <h2>The Encryption Proccess</h2>
+        <p>Now that we have all of rounds key calculated we can start on the encryption process. 
+            As mentioned before AES encypts using blocks of 128-bits (aka 16 bytes). 
+            There are 10 rounds in the encryption and each round preforms the following 4 functions:
+        </p>
+        <ul>
+            <li>SubBytes</li>
+            <li>ShiftRows</li>
+            <li>MixColumns</li>
+            <li>AddRoundKey</li>
+        </ul>
+        <div id="initialTransformation">
+            <h2>The Initial Trasformation</h2>
+            <p>Before we get started with the first round of encryption we must go throught the initial transformation,
+                the result of this initial transformation is what we use to start the encryption.
+                The IT takes our plaintext and xOr that with our original key (k0).
+            </p>
+            <p>Each element of P is xORed with its corresponding element in k0.</p>
+            <p>P[0] ⊕ k0[0], P[1] ⊕ k0[1] ... ect</p>
+            <div id="initialTransformationVisual">
+                <canvas id="itVisual" width="1000" height="300"></canvas>
+            </div>
+        </div>
+        <div id="encryptionSteps">
+            <div>
+                <h2>Steps in a single round of encryption:</h2>
+            </div>
+            <div id="SubBytes">
+                <h3>SubBytes: </h3>
+                <p>The SubBytes step is a subtituion of each element in the stateArray with its corresponding element from the sBox.
+                    Similar to what we did during the key expansion.
+                </p>
+                <div id="encryption-sub-bytes">
+                    <div id="sub-bytes-visual-wrapper">
+                        <div id="sub-bytes-visual-block1"></div>
+                        <div id="sub-bytes-visual-block2"></div>
+                        <svg id="sub-bytes-svg" width="100%" height="100%"></svg>
+                    </div>
+                </div>
+            </div>
+            <div id="ShiftRows">
+                <h3>ShiftRows: </h3>
+                <p>The ShiftRows step is a simple shifting of each row in the stateArray.
+                    The first row is left unchanged, the second row is shifted left by one, the third row by two and the fourth row by three.
+                </p>
+                <div id="shift-rows-visual">
+                    <div id="shift-rows-visual-shift-text">
+                        <div>Row 0: No Shift</div>
+                        <div>Row 1: Shift Left by 1</div> 
+                        <div>Row 2: Shift Left by 2</div>
+                        <div>Row 3: Shift Left by 3</div>      
+                    </div>
+                    <div id="shift-rows-visual-block1"></div>
+                </div>
             </div>
         </div>
     </div>

@@ -105,7 +105,7 @@ function xOR(arr1, arr2) {
     // Converts each element into its base 10 form
     let decimalArr1 = arr1.map(curHex => parseInt(curHex, 16))
     let decimalArr2 = arr2.map(curHex => parseInt(curHex, 16))
- 
+
      //Preforms the xOR
     let xOredArr = decimalArr1.map((item, i) => item ^ decimalArr2[i])
  
@@ -171,7 +171,6 @@ function keyExpantion (key) {
         curKey = nextKey
         
     }
-    console.log(roundKeys)
 }
 
 
@@ -311,17 +310,11 @@ function aesEncryption() {
 
 let plainTextBlock = stateArray(plainText);
 
-console.log(keyExpantion(testKey))
-console.log(aesEncryption())
+keyExpantion(testKey)
+
+console.log("cypherText: " + aesEncryption())
 
 
-
-
-
-//I have a JS project which takes a plain text and encrypts it using AES-128 bit. 
-// I want to learn how to take this code and make it into a useful website. 
-// Give me some ideas on how I can do this. One idea I had was to take an educational approach
-//  and make a website that walks through the encryption process step by step. Give me some other ideas
 
 
 

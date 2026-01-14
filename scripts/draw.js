@@ -1,9 +1,9 @@
+import { gFunctionValues, tempValues, expandedKey, u8aToHexSpaced, pt, key, iniBlock, allAfterSubBytes } from "./newAESLogic.js"
 import { boxSize, offset, sboxAxisHx, sboxAxisHy,
-         sboxTargetH, sboxAxisVx, sboxAxisVy, sboxTargetV, speed
+         sboxTargetH, sboxAxisVx, sboxAxisVy, sboxTargetV
         } from "./animations.js"
 
 import { SBOX_FRAME_1, SBOX_FRAME_3 } from "./animations.js";
-import { roundKeys } from "./aesLogic.js"
 
 const w3 = ["09", "cf", "4f", "3c"]
 const afterRotWord = ["cf", "4f", "3c", "09"]
@@ -86,7 +86,7 @@ export function drawSquare(w, h, text, fontSize, xpos, ypos, frameID, clear = fa
 
     if(clear) ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-    ctx.fillStyle = "rgb(128 128 128)"
+    ctx.fillStyle = "#e6e6e6"
     ctx.fillRect(xpos, ypos, w, h);
     ctx.fillStyle = "black";
     ctx.font = `${fontSize}px Arial`;;
@@ -94,28 +94,34 @@ export function drawSquare(w, h, text, fontSize, xpos, ypos, frameID, clear = fa
     ctx.textBaseline = "middle";
     ctx.fillText(text, xpos + (w / 2), ypos + (h / 2));
 }
-
-export function drawArrayBlock(arrBlock, kVal, frameID) {
+export function drawArrayBlock(arr, kVal, frameID, iskVal = true, direction = "rowWise", spacing = 40, staringX = 0, staringY = 0) {
     const canvas = document.getElementById(frameID);
     const ctx = canvas.getContext('2d');
-    let spacingRows = 40;
 
-    ctx.fillStyle = "black";
-    ctx.font = "20px monospace";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("k" + kVal + " =", 25, 70);
-
-    for(let i = 0; i < 4; i++) {
-
+    if(iskVal === true) {
+        let kStart = staringX + 25;
         ctx.fillStyle = "black";
-        ctx.font = "18px monospace";
+        ctx.font = "20px monospace";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText("w" + i, 100, 15 + (spacingRows * i));
-        
-        for(let j = 0; j < 4; j++) {
-            drawSquare(30, 30, arrBlock[i][j], 18, 130 + (40 * j), 0 + (spacingRows * i), frameID, false)
+        ctx.fillText("k" + kVal + " =", kStart, 70)
+
+        for(let i = 0; i < 4; i++) {
+            ctx.fillStyle = "black";
+            ctx.font = "18px monospace";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("w" + (i + (kVal * 4)), staringX + 75, 15 + (spacing * i));
+
+            for(let j = 0; j < 4; j++) {
+                if(direction === "rowWise") drawSquare(30, 30, arr[(i * 4) + j], 18, staringX + (105 + (40 * j)), staringY + (spacing * i), frameID, false)
+            }
+        }
+    } else {
+        for(let i = 0; i < 4; i++) {
+            for(let j = 0; j < 4; j++) {
+                if(direction === "rowWise") drawSquare(30, 30, arr[(i * 4) + j], 18, staringX + (spacing * j), staringY + (spacing * i), frameID, false)
+            }
         }
     }
 }
@@ -187,8 +193,8 @@ export function drawXorCircle(xCord, yCord, raii, frameID) {
 
 export function drawHAxisBox() {
     const canvas = document.getElementById(SBOX_FRAME_1);
-    const ctx = canvas.getContext('2d');   
-//#d8d8d8             
+    const ctx = canvas.getContext('2d');           
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "red"
     ctx.fillRect(sboxAxisHx, sboxAxisHy, highlightBoxSize, highlightBoxSize) 
@@ -209,7 +215,6 @@ export function drawResult() {
     ctx.fillStyle = "green"
     ctx.fillRect(sboxTargetH, sboxTargetV, highlightBoxSize, highlightBoxSize)
 }
-
 export function sboxExampleArr(arr, frameID) {
     for(let i = 0; i < 4; i++) {
         drawSquare(40, 40, arr[i], 18, 0, 0, frameID + i)
@@ -288,21 +293,190 @@ export function drawRcon(frameID) {
     }
 }
 
-export function drawxOR(arr1, arr2, arr3, frameID) {
+export function drawxOR(arr1, arr2, arr3, legendArr, frameID) {
+    const canvas = document.getElementById(frameID);
+    const ctx = canvas.getContext('2d');
+    
+    ctx.fillStyle = "black";
+    ctx.font = "20px monospace";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(legendArr[0] + " =", 30, 15);
+    ctx.fillText(legendArr[1] + " =", 30, 165);
+    ctx.fillText(legendArr[2] + " =", 30, 240);
 
     for(let i = 0; i < 4; i++) {
-        drawSquare(30, 30, arr1[i], 18, 1 + (100 * i), 0, frameID)
-        drawSquare(30, 30, arr2[i], 18, (100 * i), 150, frameID)
+        drawSquare(30, 30, arr1[i], 18, 91 + (100 * i), 0, frameID)
+        drawSquare(30, 30, arr2[i], 18, 90 + (100 * i), 150, frameID)
 
-        drawXorCircle(16, 90, 15, frameID);
-        drawXorCircle(16 + (100 * i), 90, 15, frameID);
+        drawXorCircle(106, 90, 15, frameID);
+        drawXorCircle(106 + (100 * i), 90, 15, frameID);
 
-        drawArrow(16 + (100 * i), 30, 16 + (100 * i), 75, false, "down", frameID);
-        drawArrow(16 + (100 * i), 150, 16 + (100 * i), 105, false, "up", frameID);
-        drawArrow(16 + (100 * i), 90, 61 + (100 * i), 90, true, "right", frameID);
-        drawArrow(61 + (100 * i), 90, 61 + (100 * i), 225, false, "down", frameID);
+        drawArrow(106 + (100 * i), 30, 106 + (100 * i), 75, false, "down", frameID);
+        drawArrow(106 + (100 * i), 150, 106 + (100 * i), 105, false, "up", frameID);
+        drawArrow(106 + (100 * i), 90, 151 + (100 * i), 90, true, "right", frameID);
+        drawArrow(151 + (100 * i), 90, 151 + (100 * i), 225, false, "down", frameID);
 
-        drawSquare(30, 30, arr3[i], 18, 46 + (100 * i), 225, frameID);
+        drawSquare(30, 30, arr3[i], 18, 136 + (100 * i), 225, frameID);
     }
 }
 
+export function sliderArrows(frameID) {
+    drawArrow(20, 240, 65, 240, true, "right", frameID);
+    drawArrow(65, 240, 65, 15, true, "up", frameID);
+    drawArrow(65, 15, 115, 15, false, "right", frameID);
+}
+
+
+function drawvArrow(frameID, startingX, startingY, length, direction) {
+    //top line
+    drawArrow(startingX, startingY, startingX + 10, startingY, true, "right", frameID);
+    //bottom line
+    drawArrow(startingX, startingY + length, startingX + 10, startingY + length, true, "right", frameID)
+    //middle line
+    drawArrow(startingX + 10, startingY, startingX + 10, startingY + length, true, "down", frameID)
+    //right line
+    drawArrow(startingX + 10, startingY + (length / 2), startingX + 20, startingY + (length / 2), true, "down", frameID)
+}
+
+export function drawFullKeyExpansion(spacing = 0, frameID) {
+    const canvas = document.getElementById(frameID);
+    const ctx = canvas.getContext('2d');
+    let currentWord; 
+    let swCount = 1;
+    let gCount = 2 
+
+    for(let i = 0; i < 40; i++) {
+        ctx.fillStyle = "black";
+        ctx.font = "16px monospace";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(`${i + 4}`, 65, 50 + (spacing * i));
+        ctx.fillText(`w[${i + 4}]`, 1150, 50 + (spacing * i));
+        ctx.fillText("=", 1100, 50 + (spacing * i));
+
+        //Writes temp values
+        ctx.fillText(`${tempValues[i]}`, 160, 50 + (spacing * i));
+
+        //Writes the vales from the g()
+        //Need to find a better way to get the subword and g() values
+        //This count method seems awkward
+        if(i < 10) {
+            ctx.fillText(`${gFunctionValues[i * 3]}`, 285, 50 + ((spacing + 90) * i));
+            ctx.fillText(rCon[i + 1].join(''), 595, 50 + ((spacing + 90) * i));
+            ctx.fillText(`${gFunctionValues[i + swCount]}`, 445, 50 + ((spacing + 90) * i))
+            swCount += 2
+            ctx.fillText(`${gFunctionValues[i + gCount]}`, 725, 50 + ((spacing + 90) * i))
+            gCount += 2
+        }
+        currentWord = u8aToHexSpaced(expandedKey.subarray(i * 4, (i * 4) + 4))
+        ctx.fillText(`${currentWord}`, 865, 50 + (spacing * i));
+        ctx.fillText(`${tempValues[i + 1]}`, 1025, 50 + (spacing * i));
+    }
+
+    for(let i = 0; i < 10; i++) {
+        const lineSpacing = 120
+        if(i === 0) drawArrow(20, 15, 1185, 15, true, "right", frameID)
+        drawArrow(20, 35 + (lineSpacing * i), 1185, 35 + (lineSpacing * i), true, "right", frameID)
+
+        drawArrow(1190, 50 + (lineSpacing * i), 1200, 50 + (lineSpacing * i), true, "right", frameID)
+        drawArrow(1190, 140 + (lineSpacing * i), 1200, 140 + (lineSpacing * i), true, "right", frameID)
+        drawArrow(1200, 95 + (lineSpacing * i), 1210, 95 + (lineSpacing * i), true, "right", frameID)
+        drawArrow(1200, 50 + (lineSpacing * i), 1200, 140 + (lineSpacing * i), true, "right", frameID)
+        ctx.font = "20px monospace";
+        ctx.fillText(`k${i + 1}`, 1230, 95 + (lineSpacing * i));
+    }
+}
+
+export function drawInitialTransformation(frameID) {
+    const canvas = document.getElementById(frameID);
+    const ctx = canvas.getContext('2d');
+
+    //P block
+    drawArrayBlock(u8aToHexSpaced(pt), 0, frameID, false, "rowWise", 40)
+    drawXorCircle(250, 75, 15, frameID)
+    drawXorCircle(250, 75, 15, frameID)
+    //k0 block
+    drawArrayBlock(u8aToHexSpaced(key), 0, frameID, false, "rowWise", 40, 350)
+
+    ctx.fillStyle = "black";
+    ctx.font = "italic 20px monospace";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("P", 75, 200);
+    ctx.fillText("k0", 425, 200);
+    ctx.fillText("stateArray", 775, 200);
+
+    drawvArrow(frameID, 600, 15, 120, "right")
+    drawArrayBlock(u8aToHexSpaced(iniBlock), 0, frameID, false, "rowWise", 40, 700)
+}
+export function drawAesBlock(block, parentContainer) {
+    const container = document.getElementById(parentContainer);
+
+    u8aToHexSpaced(block).forEach((value, index) => {
+    const cell = document.createElement("div");
+    cell.className = "aes-cell"
+    cell.textContent = value;
+    cell.dataset.index = index;
+    container.appendChild(cell);
+    });
+}
+export function drawSvgLine(fromSq, toSq) {
+    const svg = document.getElementById("sub-bytes-svg");
+    svg.innerHTML = "";
+
+    const sq1 = fromSq.getBoundingClientRect();
+    const sq2 = toSq.getBoundingClientRect();
+    const svgRect = svg.getBoundingClientRect();
+
+    const sq1X = sq1.left + (sq1.width / 2) - svgRect.left;
+    const sq1Y = sq1.top + (sq1.height / 2) - svgRect.top;
+    const sq2X = sq2.left + (sq2.width / 2) - svgRect.left;
+    const sq2Y = sq2.top + (sq2.height / 2) - svgRect.top;
+
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+
+    const cs = (sq1X + sq2X) / 2; // control point x
+    const cy = Math.min(sq1Y, sq2Y) + 125; // control point y
+
+    path.setAttribute(
+        "d",
+        `M ${sq1X} ${sq1Y} Q ${cs} ${cy} ${sq2X} ${sq2Y}`
+    );
+    path.setAttribute("stroke", "black");
+    path.setAttribute("stroke-width", "3");
+    path.setAttribute("fill", "none");
+    
+    const pathLength = path.getTotalLength();
+    path.style.strokeDasharray = pathLength;
+    path.style.strokeDashoffset = pathLength;
+    path.style.transition = "stroke-dashoffset 0.75s ease";
+    svg.appendChild(path);
+
+    // Trigger animation
+    requestAnimationFrame(() => {
+        path.style.strokeDashoffset = 0;
+    });
+
+    const midpointOfPath = path.getPointAtLength(pathLength / 2);    
+
+    const sbox = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    sbox.setAttribute("x", midpointOfPath.x - 25); // subtract half width to center
+    sbox.setAttribute("y", midpointOfPath.y - 25); // subtract half height
+    sbox.setAttribute("width", 50);
+    sbox.setAttribute("height", 50);
+    sbox.setAttribute("fill", "#9aff9a");
+    sbox.setAttribute("stroke", "black");
+    svg.appendChild(sbox);
+
+    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    text.setAttribute("x", midpointOfPath.x); 
+    text.setAttribute("y", midpointOfPath.y); 
+    text.setAttribute("text-anchor", "middle"); 
+    text.setAttribute("dominant-baseline", "middle");
+    text.setAttribute("fill", "black"); 
+    text.setAttribute("font-size", "14");
+    text.setAttribute("font-family", "monospace");
+    text.textContent = "S-Box"; 
+    svg.appendChild(text);
+}
