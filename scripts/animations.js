@@ -246,6 +246,8 @@ export function animateShiftRows(blockID, row) {
         cellArr.forEach((cell, index) => {
             cell.style.transition = "transform 0.75s ease";
             cell.style.transform = `scale(${1.5}) translateX(${(cellSize / 2.75 * index) - 27.5}px)`;
+            cell.style.position = "relative";
+            cell.style.zIndex = "1000";
         });
     }
     if(row === 0) {
@@ -320,10 +322,6 @@ export function shiftRowsAnimation() {
 
         if(currentAnimation) currentAnimation.cancel();
 
-        cells.forEach(cell => {
-            cell.style.position = "relative";
-            cell.style.zIndex = "1000";
-        });
         currentAnimation = animateShiftRows("shift-rows-visual-block1", row);
     });
     block.addEventListener("mouseleave", () => {

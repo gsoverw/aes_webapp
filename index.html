@@ -276,7 +276,8 @@
         <h2>The Encryption Proccess</h2>
         <p>Now that we have all of rounds key calculated we can start on the encryption process. 
             As mentioned before AES encypts using blocks of 128-bits (aka 16 bytes). 
-            There are 10 rounds in the encryption and each round preforms the following 4 functions:
+            There are 10 rounds in the encryption and each round preforms the following 4 functions (except for the last round 
+            where MixColumns is skipped):
         </p>
         <ul>
             <li>SubBytes</li>
