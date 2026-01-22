@@ -205,7 +205,7 @@ function mixColumns(block) {
 
 export const allAfterSubBytes = [];
 export const allAfterShiftRows = [];
-
+export const allAfterMixColumns = [];
 
 function aesEncryption(pt) {
     let state = initialTransformation(pt, key);
@@ -218,8 +218,11 @@ function aesEncryption(pt) {
 
         let afterShiftRows =  shiftRows(afterSubBytes);
         allAfterShiftRows.push(afterShiftRows.slice());
+        
 
         let afterMixCol = mixColumns(afterShiftRows);
+        allAfterMixColumns.push(afterMixCol.slice());
+        console.log("After MixColumns Round " + i + ": " + u8aToHexSpaced(afterMixCol));
 
         for(let j = 0; j < state.length; j++) {
             nextState[j] = afterMixCol[j] ^ expandedKey[j + (16 * i)]
@@ -233,6 +236,22 @@ function aesEncryption(pt) {
 }
 
 aesEncryption(pt)
-//console.log(u8aToHexSpaced(aesEncryption(pt)))
-console.log(u8aToHexSpaced(allAfterSubBytes[0]))
+console.log(u8aToHexSpaced(aesEncryption(pt)))
+//console.log(u8aToHexSpaced(allAfterSubBytes[0]))
+//console.log(u8aToHexSpaced(allAfterShiftRows[1]))
+
+
+
+export function rowToColumnWise(state) {
+    if (state.length !== 16) {
+        throw new Error("AES state must be 16 bytes");
+    }
+    const result = new Array(16);
+    for (let row = 0; row < 4; row++) {
+        for (let col = 0; col < 4; col++) {
+            result[col * 4 + row] = state[row * 4 + col];
+        }
+    }
+    return result;
+}
 

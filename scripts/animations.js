@@ -216,7 +216,7 @@ export function subBytesArrowAnimation() {
         lastTargetCell = targetCell;
 
         drawSvgLine(cell, targetCell);
-        //attachSBoxHover(cell, cell.textContent);
+        
         slideInSBox(cell.textContent, cell);
     });
     block1.addEventListener("mouseleave", () => {
@@ -227,115 +227,62 @@ export function subBytesArrowAnimation() {
         svg.innerHTML = "";
     });
 }
-export function animateShiftRows(blockID, row) {
-
-    const cells = Array.from(
-       document.querySelectorAll(`#${blockID} .aes-cell`)
+export function animateShiftRows(blockID, rowIndex) {
+    if (rowIndex === 0) {return}
+    const row = document.querySelector(
+        `#${blockID} .aes-row[data-row="${rowIndex}"]`
     );
+    const cells = Array.from(row.querySelectorAll(".aes-cell"));
 
-    const start = row * 4;
-    const cellArr = cells.slice(start, start + 4);
+    cells[0].classList.add("curve-move");
+    cells[1].style.transition = "transform 1.5s ease";
+    cells[1].style.transform = `translateX(-55px)`;
+    cells[2].style.transition = "transform 1.5s ease";
+    cells[2].style.transform = `translateX(-55px)`;
+    cells[3].style.transition = "transform 1.5s ease";
+    cells[3].style.transform = `translateX(-55px)`;
 
-    let first = cellArr[0];
-    let rest = cellArr.slice(1);
-    let cellSize = cellArr[0].getBoundingClientRect().width;
+    if(rowIndex === 1) {return}
+    setTimeout(() => {
+        cells[1].classList.add("curve-move");
+        cells[2].style.transition = "transform 2s ease";
+        cells[2].style.transform = `translateX(-110px)`;
+        cells[3].style.transition = "transform 2s ease";
+        cells[3].style.transform = `translateX(-110px)`;
+        cells[0].style.transition = "transform 2s ease";
+        cells[0].style.transform = `translateX(-55px)`;
+    }, 2000);
 
-    const timeouts = [];
-
-    function enlarge() {
-        cellArr.forEach((cell, index) => {
-            cell.style.transition = "transform 0.75s ease";
-            cell.style.transform = `scale(${1.5}) translateX(${(cellSize / 2.75 * index) - 27.5}px)`;
-            cell.style.position = "relative";
-            cell.style.zIndex = "1000";
-        });
-    }
-    if(row === 0) {
-        enlarge();
-        return;
-    }
-    function shift(shiftAmount) {
-        enlarge();
-
-        const t1 = setTimeout(() => {
-            requestAnimationFrame(() => {
-                rest.forEach((cell, index) => {
-                    cell.style.transition = "transform 1s ease";
-                    cell.style.transform = `scale(${1.5}) translateX(${((cellSize / 2.75 * index) - 36) - cellSize + 22}px)`;
-                });
-                first.classList.add("curve-move");
-            });
-        }, 1500);
-        timeouts.push(t1);
-
-        if(shiftAmount !== 1) {
-            const t2 = setTimeout(() => {
-                cellArr[1].classList.add("curve-move");
-                cellArr[2].style.transition = "transform 2s ease";
-                cellArr[2].style.transform = `scale(${1.5}) translateX(${-(cellSize * 2)}px)`;
-                cellArr[3].style.transition = "transform 2s ease";
-                cellArr[3].style.transform = `scale(${1.5}) translateX(${-(cellSize * 1.5 + 7.5)}px)`;
-                cellArr[0].style.transition = "transform 2s ease";
-                cellArr[0].style.transform = `scale(${1.5}) translateX(${-(cellSize * 1.5 + 7.5)}px)`;
-            }, 3500); // 1500 + 2000
-            timeouts.push(t2);
-        }
-
-        if(shiftAmount !== 2) {
-            const t3 = setTimeout(() => {
-                cellArr[2].classList.add("curve-move");
-                cellArr[3].style.transition = "transform 2s ease";
-                cellArr[3].style.transform = `scale(${1.5}) translateX(${-(cellSize * 2.75)}px)`;
-                cellArr[0].style.transition = "transform 2s ease";
-                cellArr[0].style.transform = `scale(${1.5}) translateX(${-(cellSize * 2.75)}px)`;
-                cellArr[1].style.transition = "transform 2s ease";
-                cellArr[1].style.transform = `scale(${1.5}) translateX(${-(cellSize * 2.75 - 16.5)}px)`;
-            }, 5500); // 1500 + 2000 + 2000
-            timeouts.push(t3);
-        }
-    }
-    shift(row);
-
-    return {
-        cancel: () => {
-            timeouts.forEach(t => clearTimeout(t));
-        }
-    };
+    if(rowIndex === 2) {return}
+    setTimeout(() => {
+        cells[2].classList.add("curve-move");
+        cells[3].style.transition = "transform 2.5s ease";
+        cells[3].style.transform = `translateX(-165px)`;
+        cells[0].style.transition = "transform 2.5s ease";
+        cells[0].style.transform = `translateX(-110px)`;
+        cells[1].style.transition = "transform 2.5s ease";
+        cells[1].style.transform = `translateX(-110px)`;
+    }, 4000);
 }
-
-export function shiftRowsAnimation() {
+export function shiftRowsAnimationClick () {
     const block = document.getElementById("shift-rows-visual-block1");
-    let currentRow = null;
-    let currentAnimation = null;
+    const rows = block.querySelectorAll(".aes-row");
 
-    block.addEventListener("mouseover", (e) => {
-        const cells = block.querySelectorAll(".aes-cell");
-        const cell = e.target.closest(".aes-cell");
-        
-        if (!cell) return;
-
-        const index = cell.dataset.index;
-        const row = Math.floor(index / 4);
-
-        if (row === currentRow) return;
-        currentRow = row;
-
-        if(currentAnimation) currentAnimation.cancel();
-
-        currentAnimation = animateShiftRows("shift-rows-visual-block1", row);
-    });
-    block.addEventListener("mouseleave", () => {
-        currentRow = null;
-
-        if(currentAnimation) currentAnimation.cancel();
-        currentAnimation = null;
-
-        const cells = block.querySelectorAll(".aes-cell");    
-        cells.forEach(cell => {
-            cell.style.transition = "transform 0.5s ease"; 
-            cell.style.transform = "scale(1) translateX(0)"; 
-            cell.classList.remove("curve-move");
-            cell.style.zIndex = ""; // reset z-index
+    rows.forEach(row => {
+        row.addEventListener("click", () => {
+            const rowIndex = parseInt(row.dataset.row);
+            console.log("Hovered row: " + rowIndex);
+            animateShiftRows("shift-rows-visual-block1", rowIndex);
+        });
+        row.addEventListener("mouseleave", () => {
+            const cells = block.querySelectorAll(".aes-cell");    
+            cells.forEach(cell => {
+                cell.style.transition = ""; 
+                cell.style.transform = "";
+                cell.style.position = "";
+                cell.classList.remove("curve-move");
+                cell.style.zIndex = "";
+            });
         });
     });
 }

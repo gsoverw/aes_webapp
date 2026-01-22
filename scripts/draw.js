@@ -412,15 +412,27 @@ export function drawInitialTransformation(frameID) {
 }
 export function drawAesBlock(block, parentContainer) {
     const container = document.getElementById(parentContainer);
+    container.innerHTML = "";
 
-    u8aToHexSpaced(block).forEach((value, index) => {
-    const cell = document.createElement("div");
-    cell.className = "aes-cell"
-    cell.textContent = value;
-    cell.dataset.index = index;
-    container.appendChild(cell);
-    });
+    for (let row = 0; row < 4; row++) {
+        const rowEl = document.createElement("div");
+        rowEl.className = `aes-row row-${row}`;
+        rowEl.dataset.row = row;
+
+        for (let col = 0; col < 4; col++) {
+            const index = row * 4 + col;
+            const cell = document.createElement("div");
+            cell.className = "aes-cell";
+            cell.dataset.index = index;
+            cell.dataset.col = col;
+            cell.textContent = u8aToHexSpaced(block)[index];
+            rowEl.appendChild(cell);
+        }
+        container.appendChild(rowEl);
+        if(block.length < 5) break; //only one row
+    }
 }
+
 export function drawSvgLine(fromSq, toSq) {
     const svg = document.getElementById("sub-bytes-svg");
     svg.innerHTML = "";

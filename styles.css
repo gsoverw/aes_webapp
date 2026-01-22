@@ -383,19 +383,17 @@ p {
 #encryption-sub-bytes {
     margin-top: 50px;
 }
-#sub-bytes-visual-block1 {
-    display: grid;
-    grid-template-columns: repeat(4, 40px);
-    grid-template-rows: repeat(4, 40px);
-    gap: 15px;
+#sub-bytes-visual-block1,
+#sub-bytes-visual-block2 {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
     position: relative;
 }
-#sub-bytes-visual-block2 {
+.aes-row {
     display: grid;
     grid-template-columns: repeat(4, 40px);
-    grid-template-rows: repeat(4, 40px);
     gap: 15px;
-    position: relative;
 }
 .aes-cell {
     width: 50px;
@@ -426,7 +424,7 @@ p {
         0 10px 20px rgba(0, 0, 0, 0.25);
 }
 .aes-cell.curve-move {
-  offset-path: path("M 30 25 Q 125 150 272 25");
+  offset-path: path("M 30 25 Q 125 150 190 25");
   offset-rotate: 0deg;
   animation: move-curve 1.5s ease-in-out forwards;
 }
@@ -453,18 +451,36 @@ p {
     z-index: 9;
 }
 #shift-rows-visual {
+    margin-top: 50px;
+    margin-bottom: 50px;
+    width: 60%;
     display: flex;
+    justify-content: space-between;
 }
 #shift-rows-visual-shift-text {
     display: flex;
     flex-direction: column;
     justify-content: space-around;
 }
-#shift-rows-visual-block1 {
-    display: grid;
-    grid-template-columns: repeat(4, 50px);
-    grid-template-rows: repeat(4, 50px);
+#shift-rows-visual-block1,
+#shift-rows-visual-block2, 
+#mix-columns-visual-block1 {
+    display: flex;
+    flex-direction: column;
     gap: 5px;
     position: relative;
 }
 
+#shift-rows-visual-block1 .aes-row {
+    transition: transform 0.5s ease;
+    transform-origin: center;
+}
+#shift-rows-visual-block1 .aes-row:hover .aes-cell{
+    transform: none;
+}
+#shift-rows-visual-block1 .aes-row:hover {
+    transform: scale(1.4);
+    transform-origin: center;
+    z-index: 5;
+    transition: transform 0.6s ease;
+}

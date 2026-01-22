@@ -1,8 +1,8 @@
 import "./newAESLogic.js"
-import { u8aToHexSpaced, iniBlock, allAfterSubBytes } from "./newAESLogic.js"
+import { u8aToHexSpaced, iniBlock, allAfterSubBytes, allAfterShiftRows, allAfterMixColumns, rowToColumnWise } from "./newAESLogic.js"
 import { keySchedule, drawRcon, drawxOR, rCon, drawArrayBlock, sliderArrows, drawFullKeyExpansion, 
     drawInitialTransformation, drawAesBlock } from "./draw.js";
-import { sboxExampleAnimation, subBytesArrowAnimation, animateShiftRows, shiftRowsAnimation } from "./animations.js";
+import { sboxExampleAnimation, subBytesArrowAnimation, shiftRowsAnimationClick, } from "./animations.js";
 import { rotWordHover } from "./rotWordAnimation.js";
 import { roundKeys } from "./aesLogic.js"
 import { expandedKey } from "./newAESLogic.js";
@@ -38,15 +38,12 @@ drawFullKeyExpansion(30, "keCalculation")
 
 drawInitialTransformation("itVisual")
 
-
 drawAesBlock(iniBlock, "sub-bytes-visual-block1")
-drawAesBlock(u8aToHexSpaced(allAfterSubBytes[0]), "sub-bytes-visual-block2")
-drawAesBlock(u8aToHexSpaced(allAfterSubBytes[0]), "shift-rows-visual-block1")
+drawAesBlock(u8aToHexSpaced(rowToColumnWise(allAfterSubBytes[0])), "sub-bytes-visual-block2")
+drawAesBlock(u8aToHexSpaced(rowToColumnWise(allAfterSubBytes[0])), "shift-rows-visual-block1")
+drawAesBlock(u8aToHexSpaced(rowToColumnWise(allAfterShiftRows[0])), "shift-rows-visual-block2")
+drawAesBlock(u8aToHexSpaced(rowToColumnWise(allAfterMixColumns[0])), "mix-columns-visual-block1")
 
 subBytesArrowAnimation();
 
-//animateShiftRows("shift-rows-visual-block1", 3);
-
-shiftRowsAnimation();
-//shiftRowsHover("shift-rows-visual-block1");
-
+shiftRowsAnimationClick();
