@@ -1,4 +1,4 @@
-import { drawHAxisBox, drawVAxisBox, drawResult, drawSboxExample, drawSBox, drawSvgLine } from "./draw.js"
+import { drawHAxisBox, drawVAxisBox, drawResult, drawSboxExample, drawSBox, drawSvgLine, drawMixColumnsMathHeader } from "./draw.js"
 
 export let boxSize = 30;
 export let offset = boxSize * 1.42;
@@ -283,6 +283,16 @@ export function shiftRowsAnimationClick () {
                 cell.classList.remove("curve-move");
                 cell.style.zIndex = "";
             });
+        });
+    });
+}
+export function mixColumnsMathClick() {
+    const block = document.getElementById("mix-columns-visual-block3");
+    const cells = block.querySelectorAll(".aes-cell");
+
+    cells.forEach(cell => {
+        cell.addEventListener("click", () => {
+            drawMixColumnsMathHeader(cell);
         });
     });
 }

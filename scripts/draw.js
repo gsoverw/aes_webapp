@@ -425,6 +425,7 @@ export function drawAesBlock(block, parentContainer) {
             cell.className = "aes-cell";
             cell.dataset.index = index;
             cell.dataset.col = col;
+            cell.dataset.row = row;
             cell.textContent = u8aToHexSpaced(block)[index];
             rowEl.appendChild(cell);
         }
@@ -433,6 +434,69 @@ export function drawAesBlock(block, parentContainer) {
     }
 }
 
+export function drawMixColumnsMathHeader(cell) {
+    const container = document.getElementById("mix-columns-visual-math-header");
+    const containerMath = document.getElementById("mix-columns-visual-math");
+    const targetBlock = document.getElementById("mix-columns-visual-block1");
+    const cellRow = cell.dataset.row;
+    const cellCol = cell.dataset.col;
+
+    const targetCols = targetBlock.querySelectorAll(`.aes-cell[data-col='${cellCol}']`);
+
+    container.innerHTML = "";
+
+    const fixedMatrix = [
+        ["02", "03", "01", "01"],
+        ["01", "02", "03", "01"],
+        ["01", "01", "02", "03"],
+        ["03", "01", "01", "02"]
+    ];
+
+    function hexToPolynomial(hexStr) {
+        // Parse hex string to integer (0–255)
+        const value = parseInt(hexStr, 16);
+        if (value === 0) return "0";
+        const terms = [];
+        // Check each bit from MSB (bit 7) to LSB (bit 0)
+        for (let bit = 7; bit >= 0; bit--) {
+            if (value & (1 << bit)) {
+                if (bit === 0) {
+                    terms.push("1");
+                } else if (bit === 1) {
+                    terms.push("X");
+                } else {
+                    terms.push(`X^${bit}`);
+                }
+            }
+        }
+        return terms.join(" + ");
+    }
+
+    for(let i = 0; i < 4; i++) {
+        const term = document.createElement("div");
+        term.className = "mix-columns-math-term";
+        term.textContent = `{${targetCols[i].textContent}} * {${fixedMatrix[cellRow][i]}}`;
+        container.appendChild(term);
+
+        if(i === 3) break;  
+        const xOR = document.createElement("div");
+        xOR.className = "mix-columns-math-xor";
+        xOR.textContent = "⊕";
+        container.appendChild(xOR);
+    }
+
+    for(let i = 0; i < 4; i++) {
+        const termMath = document.createElement("div");
+        const termMathP = document.createElement("p");
+        termMath.className = "mix-columns-math-term-math";
+        termMath.textContent = `${targetCols[i].textContent} = ${parseInt(targetCols[i].textContent, 16).toString(2).padStart(8, '0')} = ${hexToPolynomial(targetCols[i].textContent)}`;
+        termMathP.textContent = `${fixedMatrix[cellRow][i]} = ${parseInt(fixedMatrix[cellRow][i], 16).toString(2).padStart(8, '0')} = ${hexToPolynomial(fixedMatrix[cellRow][i])}`;
+        termMathP.appendChild(document.createElement("br"));
+        termMathP.append(`${fixedMatrix[cellRow][i]} * ${targetCols[i].textContent} = {${hexToPolynomial(fixedMatrix[cellRow][i])}} * {${hexToPolynomial(targetCols[i].textContent)}}`);
+        containerMath.appendChild(termMath);
+        termMath.appendChild(termMathP);
+    }
+}
 export function drawSvgLine(fromSq, toSq) {
     const svg = document.getElementById("sub-bytes-svg");
     svg.innerHTML = "";

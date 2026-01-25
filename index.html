@@ -333,10 +333,17 @@
             <div id="MixColumns">
                 <h3>MixColumns: </h3>
                 <p>The MixColumns step is a more complex transformation that operates on the columns of the stateArray.
-                    Each column is treated as a four-term polynomial and is multiplied by a fixed polynomial modulo x^4 + 1.
+                    The stateArray is multiplied by a fixed polynomial matrix.
+                    Where each column is treated as a four-term polynomial modulo x^4 + 1.
                 </p>
                 <div id="mix-columns-visual">
-                    <div id="mix-columns-visual-block1"></div>
+                    <div id="mix-columns-visual-blocks">
+                        <div id="mix-columns-visual-block1"></div>
+                        <div id="mix-columns-visual-block2"></div>
+                        <div id="mix-columns-visual-block3"></div>
+                    </div>
+                    <div id="mix-columns-visual-math-header"></div>
+                    <div id="mix-columns-visual-math"></div>
                 </div>
             </div>
         </div>
