@@ -142,7 +142,7 @@ function subBytes(iniBlock) {
     return afterSubBytes;
 }
 //console.log(u8aToHexSpaced(initialTransformation(pt, key)))
-console.log("after subBytes: " + u8aToHexSpaced(subBytes(initialTransformation(pt, key))));
+//console.log("after subBytes: " + u8aToHexSpaced(subBytes(initialTransformation(pt, key))));
 
 function shiftRows(block) {
     const src = block.slice();
@@ -206,6 +206,9 @@ function mixColumns(block) {
 export const allAfterSubBytes = [];
 export const allAfterShiftRows = [];
 export const allAfterMixColumns = [];
+export const allAfterAddRoundKey = [];
+
+allAfterAddRoundKey.push(iniBlock.slice());
 
 function aesEncryption(pt) {
     let state = initialTransformation(pt, key);
@@ -222,12 +225,13 @@ function aesEncryption(pt) {
 
         let afterMixCol = mixColumns(afterShiftRows);
         allAfterMixColumns.push(afterMixCol.slice());
-        console.log("After MixColumns Round " + i + ": " + u8aToHexSpaced(afterMixCol));
 
         for(let j = 0; j < state.length; j++) {
             nextState[j] = afterMixCol[j] ^ expandedKey[j + (16 * i)]
+            
         }
         state = nextState;
+        allAfterAddRoundKey.push(state.slice());
     }
     for(let i = 0; i < state.length; i++) {
         cypherText[i] = shiftRows(subBytes(state))[i] ^ expandedKey[(expandedKey.length - 16) + i]
@@ -236,6 +240,7 @@ function aesEncryption(pt) {
 }
 
 aesEncryption(pt)
+export const resultCypher = aesEncryption(pt);
 console.log(u8aToHexSpaced(aesEncryption(pt)))
 //console.log(u8aToHexSpaced(allAfterSubBytes[0]))
 //console.log(u8aToHexSpaced(allAfterShiftRows[1]))

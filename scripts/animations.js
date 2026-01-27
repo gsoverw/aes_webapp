@@ -287,11 +287,20 @@ export function shiftRowsAnimationClick () {
     });
 }
 export function mixColumnsMathClick() {
+    
     const block = document.getElementById("mix-columns-visual-block3");
     const cells = block.querySelectorAll(".aes-cell");
+    const containerMath = document.getElementById("mix-columns-visual-math");
+    const containerFooter = document.getElementById("mix-columns-visual-math-footer");
 
     cells.forEach(cell => {
+        const stateArray = document.getElementById("mix-columns-visual-block1");
+        const fixedMatrixArray = document.getElementById("mix-columns-visual-block2");
+
+        
         cell.addEventListener("click", () => {
+            containerMath.innerHTML = "";
+            containerFooter.innerHTML = "";
             drawMixColumnsMathHeader(cell);
         });
     });

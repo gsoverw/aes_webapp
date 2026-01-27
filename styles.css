@@ -395,6 +395,11 @@ p {
     grid-template-columns: repeat(4, 40px);
     gap: 15px;
 }
+.aes-row-mini {
+    display: grid;
+    grid-template-columns: repeat(4, 20px);
+    gap: 10px;
+}
 .aes-cell {
     width: 50px;
     height: 50px;
@@ -413,7 +418,19 @@ p {
         transform 0.25s ease,
         background-color 0.25s ease,
         box-shadow 0.25s ease;
+}
+.aes-cell-mini {
+    width: 30px;
+    height: 30px;
+    background-color: #e6e6e6;
+    border: 2px solid #999;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
+    font-family: monospace;
+    font-size: 16px;
 }
 .aes-cell:hover {
     background-color: #f4c430;
@@ -466,7 +483,10 @@ p {
 #shift-rows-visual-block2, 
 #mix-columns-visual-block1,
 #mix-columns-visual-block2,
-#mix-columns-visual-block3 {
+#mix-columns-visual-block3,
+#add-round-key-visual-block1,
+#add-round-key-visual-block2,
+#add-round-key-visual-block3 {
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -493,7 +513,8 @@ p {
     display: flex;
     justify-content: space-between;
 }
-#mix-columns-visual-math-header {
+#mix-columns-visual-math-header,
+#mix-columns-visual-math-footer {
     margin-top: 50px;
     margin-bottom: 50px;
     width: 60%;
@@ -512,22 +533,33 @@ p {
 #mix-columns-visual-math * p {
     margin: 0px;
 }
-/* Highlight entire column when any cell in that column is hovered */
-#mix-columns-visual-block1:has(.aes-cell[data-col="0"]:hover) 
-.aes-cell[data-col="0"],
-#mix-columns-visual-block1:has(.aes-cell[data-col="1"]:hover) 
-.aes-cell[data-col="1"],
-#mix-columns-visual-block1:has(.aes-cell[data-col="2"]:hover) 
-.aes-cell[data-col="2"],
-#mix-columns-visual-block1:has(.aes-cell[data-col="3"]:hover) 
-.aes-cell[data-col="3"] {
-    background-color: #9ad0ff;
-    box-shadow: 0 0 20px rgba(0, 120, 255, 0.5);
-    transform: scale(1.4);
-    z-index: 5;
+#add-round-key-visual {
+    margin-top: 50px;
+    margin-bottom: 50px;
+    width: 60%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 20px;
 }
-#mix-columns-visual-block1 .aes-cell:hover {
-    transform: none;
+.full-aes-example-header {
+    margin-top: 50px;
+    margin-bottom: 50px;
+    width: 60%;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    text-align: center;
+}
+.full-aes-example-row {
+    width: 60%;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    margin-bottom: 15px;
+    margin-top: 15px;
+    text-align: center;
+    justify-items: center;
+    align-content: center;
 }
 
 

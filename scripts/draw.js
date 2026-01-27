@@ -1,9 +1,11 @@
-import { gFunctionValues, tempValues, expandedKey, u8aToHexSpaced, pt, key, iniBlock, allAfterSubBytes } from "./newAESLogic.js"
+import { gFunctionValues, tempValues, expandedKey, u8aToHexSpaced, pt, key, iniBlock, 
+    allAfterSubBytes, allAfterAddRoundKey, allAfterShiftRows, rowToColumnWise, allAfterMixColumns, resultCypher } from "./newAESLogic.js"
 import { boxSize, offset, sboxAxisHx, sboxAxisHy,
          sboxTargetH, sboxAxisVx, sboxAxisVy, sboxTargetV
         } from "./animations.js"
 
 import { SBOX_FRAME_1, SBOX_FRAME_3 } from "./animations.js";
+import { multiplyBinaryPolynomials, reduceAESPolynomial, polynomialToBinary, hexToPolynomial } from "./utils.js";
 
 const w3 = ["09", "cf", "4f", "3c"]
 const afterRotWord = ["cf", "4f", "3c", "09"]
@@ -410,19 +412,20 @@ export function drawInitialTransformation(frameID) {
     drawvArrow(frameID, 600, 15, 120, "right")
     drawArrayBlock(u8aToHexSpaced(iniBlock), 0, frameID, false, "rowWise", 40, 700)
 }
-export function drawAesBlock(block, parentContainer) {
+export function drawAesBlock(block, parentContainer, blockText, mini=false) {
     const container = document.getElementById(parentContainer);
     container.innerHTML = "";
 
     for (let row = 0; row < 4; row++) {
         const rowEl = document.createElement("div");
         rowEl.className = `aes-row row-${row}`;
+        if(mini) rowEl.classList.add("aes-row-mini");
         rowEl.dataset.row = row;
 
         for (let col = 0; col < 4; col++) {
             const index = row * 4 + col;
             const cell = document.createElement("div");
-            cell.className = "aes-cell";
+            cell.className = mini ? "aes-cell-mini" : "aes-cell";
             cell.dataset.index = index;
             cell.dataset.col = col;
             cell.dataset.row = row;
@@ -432,17 +435,26 @@ export function drawAesBlock(block, parentContainer) {
         container.appendChild(rowEl);
         if(block.length < 5) break; //only one row
     }
-}
 
+    if(blockText === "") return;
+
+    const blockName = document.createElement("div");
+    blockName.textContent = blockText;
+    blockName.style.fontWeight = "bold";
+    blockName.style.fontStyle = "italic";
+    blockName.style.textAlign = "center";
+    blockName.style.marginTop = "10px";
+    container.appendChild(blockName);
+}
 export function drawMixColumnsMathHeader(cell) {
     const container = document.getElementById("mix-columns-visual-math-header");
+    const containerFooter = document.getElementById("mix-columns-visual-math-footer");
     const containerMath = document.getElementById("mix-columns-visual-math");
     const targetBlock = document.getElementById("mix-columns-visual-block1");
     const cellRow = cell.dataset.row;
     const cellCol = cell.dataset.col;
 
     const targetCols = targetBlock.querySelectorAll(`.aes-cell[data-col='${cellCol}']`);
-
     container.innerHTML = "";
 
     const fixedMatrix = [
@@ -451,26 +463,6 @@ export function drawMixColumnsMathHeader(cell) {
         ["01", "01", "02", "03"],
         ["03", "01", "01", "02"]
     ];
-
-    function hexToPolynomial(hexStr) {
-        // Parse hex string to integer (0–255)
-        const value = parseInt(hexStr, 16);
-        if (value === 0) return "0";
-        const terms = [];
-        // Check each bit from MSB (bit 7) to LSB (bit 0)
-        for (let bit = 7; bit >= 0; bit--) {
-            if (value & (1 << bit)) {
-                if (bit === 0) {
-                    terms.push("1");
-                } else if (bit === 1) {
-                    terms.push("X");
-                } else {
-                    terms.push(`X^${bit}`);
-                }
-            }
-        }
-        return terms.join(" + ");
-    }
 
     for(let i = 0; i < 4; i++) {
         const term = document.createElement("div");
@@ -489,12 +481,142 @@ export function drawMixColumnsMathHeader(cell) {
         const termMath = document.createElement("div");
         const termMathP = document.createElement("p");
         termMath.className = "mix-columns-math-term-math";
+
         termMath.textContent = `${targetCols[i].textContent} = ${parseInt(targetCols[i].textContent, 16).toString(2).padStart(8, '0')} = ${hexToPolynomial(targetCols[i].textContent)}`;
         termMathP.textContent = `${fixedMatrix[cellRow][i]} = ${parseInt(fixedMatrix[cellRow][i], 16).toString(2).padStart(8, '0')} = ${hexToPolynomial(fixedMatrix[cellRow][i])}`;
         termMathP.appendChild(document.createElement("br"));
+
         termMathP.append(`${fixedMatrix[cellRow][i]} * ${targetCols[i].textContent} = {${hexToPolynomial(fixedMatrix[cellRow][i])}} * {${hexToPolynomial(targetCols[i].textContent)}}`);
+        termMathP.appendChild(document.createElement("br"));
+
+        termMathP.append(`= ${multiplyBinaryPolynomials(parseInt(fixedMatrix[cellRow][i], 16).toString(2).padStart(8, '0'), parseInt(targetCols[i].textContent, 16).toString(2).padStart(8, '0'))}`);
+        termMathP.appendChild(document.createElement("br"));
+
+        if (termMathP.textContent.includes("X^8")) {
+            termMathP.append(`= ${reduceAESPolynomial(multiplyBinaryPolynomials(parseInt(fixedMatrix[cellRow][i], 16).toString(2).padStart(8, '0'), parseInt(targetCols[i].textContent, 16).toString(2).padStart(8, '0')))}`);
+            termMathP.appendChild(document.createElement("br"));
+        };
+
+        termMathP.append(`= ${polynomialToBinary(reduceAESPolynomial(multiplyBinaryPolynomials(parseInt(fixedMatrix[cellRow][i], 16).toString(2).padStart(8, '0'), parseInt(targetCols[i].textContent, 16).toString(2).padStart(8, '0'))))}`);
+
         containerMath.appendChild(termMath);
         termMath.appendChild(termMathP);
+    }
+    for(let i = 0; i < 4; i++) {
+        const term = document.createElement("div");
+        term.className = "mix-columns-math-term";
+        term.textContent = `${polynomialToBinary(reduceAESPolynomial(multiplyBinaryPolynomials(parseInt(fixedMatrix[cellRow][i], 16).toString(2).padStart(8, '0'), parseInt(targetCols[i].textContent, 16).toString(2).padStart(8, '0'))))}`;
+        containerFooter.appendChild(term);
+
+        if(i === 3) {
+            term.textContent = `= ${parseInt(cell.textContent, 16).toString(2).padStart(8, '0')} = ${cell.textContent}`;
+        }
+
+        if(i === 3) break;  
+        const xOR = document.createElement("div");
+        xOR.className = "mix-columns-math-xor";
+        xOR.textContent = "⊕";
+        containerFooter.appendChild(xOR);
+    }
+}
+export function fullAesExample() {
+    const container = document.getElementById("full-round-example-visual");
+    container.innerHTML = "";
+
+    const headerVals = [
+        "Round<br>Number",
+        "Startof<br>Round",
+        "After<br>subBytes",
+        "After<br>shiftRows",
+        "After<br>mixColumns",
+        "Round<br>Key Value"
+    ];
+
+    const headerRow = document.createElement("div");
+    headerRow.className = "full-aes-example-header";
+
+    headerVals.forEach(val => {
+        const headerCell = document.createElement("div");
+        headerCell.innerHTML = val;
+        headerRow.appendChild(headerCell);
+    });
+    container.appendChild(headerRow);
+
+    for(let i = 0; i < 12; i++) {
+        const row = document.createElement("div");
+        row.className = "full-aes-example-row";
+        row.style.alignItems = "center";
+        for(let j = 0; j < 6; j++) {
+            const cell = document.createElement("div");
+            cell.id = `full-aes-example-cell-r${i}-c${j}`;
+            row.appendChild(cell);
+            switch(j) {
+                case 0:
+                    cell.textContent = `${i}`;
+                    if(i === 0) { cell.textContent = "input"; }     
+                    if(i === 11) { cell.textContent = "Output"; }                  
+                break;
+                case 1:
+                    if(i === 0) {
+                        container.appendChild(row);
+                        drawAesBlock(u8aToHexSpaced(rowToColumnWise(pt)), cell.id, "", true);
+                        break;
+                    }
+                    if(i === 11) {
+                        container.appendChild(row);
+                        drawAesBlock(u8aToHexSpaced(rowToColumnWise(resultCypher)), cell.id, "", true);
+                        return;
+                    }
+                    row.appendChild(cell);
+                    container.appendChild(row);
+                    drawAesBlock(u8aToHexSpaced(rowToColumnWise(allAfterAddRoundKey[i - 1])), cell.id, "", true);                    
+                break;
+                case 2:
+                    if(i === 0) {
+                        container.appendChild(row);
+                        cell.textContent = "<---------";
+                        break;
+                    }
+                    row.appendChild(cell);
+                    container.appendChild(row);
+                    drawAesBlock(u8aToHexSpaced(rowToColumnWise(allAfterSubBytes[i - 1])), cell.id, "", true);    
+                break;
+                case 3:
+                    if(i === 0) {
+                        container.appendChild(row);
+                        cell.textContent = "Initial Transformation";
+                        break;
+                    }
+                    row.appendChild(cell);
+                    container.appendChild(row);
+                    drawAesBlock(u8aToHexSpaced(rowToColumnWise(allAfterShiftRows[i - 1])), cell.id, "", true);    
+                break;
+                case 4:
+                    if(i === 0) {
+                        container.appendChild(row);
+                        cell.textContent = "--------->";
+                        break;
+                    }
+                    if(i === 10) {
+                        cell.textContent = "MixColumns Skipped";
+                        break;
+                    }
+                    row.appendChild(cell);
+                    container.appendChild(row);
+                    drawAesBlock(u8aToHexSpaced(rowToColumnWise(allAfterMixColumns[i - 1])), cell.id, "", true);    
+                break;
+                case 5:
+                    if(i === 0) {
+                        container.appendChild(row);
+                        drawAesBlock(u8aToHexSpaced(key), cell.id, "", true);
+                        break;
+                    }
+                    row.appendChild(cell);
+                    container.appendChild(row);
+                    drawAesBlock(u8aToHexSpaced(rowToColumnWise(expandedKey.subarray(i*16, (i+1)*16))), cell.id, "", true);    
+                break;
+            }
+        }
     }
 }
 export function drawSvgLine(fromSq, toSq) {

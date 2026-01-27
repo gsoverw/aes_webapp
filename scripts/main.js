@@ -1,7 +1,7 @@
 import "./newAESLogic.js"
-import { u8aToHexSpaced, iniBlock, allAfterSubBytes, allAfterShiftRows, allAfterMixColumns, rowToColumnWise } from "./newAESLogic.js"
+import { u8aToHexSpaced, iniBlock, allAfterSubBytes, allAfterShiftRows, allAfterMixColumns, rowToColumnWise, allAfterAddRoundKey } from "./newAESLogic.js"
 import { keySchedule, drawRcon, drawxOR, rCon, drawArrayBlock, sliderArrows, drawFullKeyExpansion, 
-    drawInitialTransformation, drawAesBlock, } from "./draw.js";
+    drawInitialTransformation, drawAesBlock, fullAesExample } from "./draw.js";
 import { sboxExampleAnimation, subBytesArrowAnimation, shiftRowsAnimationClick, mixColumnsMathClick } from "./animations.js";
 import { rotWordHover } from "./rotWordAnimation.js";
 import { roundKeys } from "./aesLogic.js"
@@ -44,16 +44,19 @@ drawFullKeyExpansion(30, "keCalculation")
 
 drawInitialTransformation("itVisual")
 
-drawAesBlock(iniBlock, "sub-bytes-visual-block1")
-drawAesBlock(u8aToHexSpaced(rowToColumnWise(allAfterSubBytes[0])), "sub-bytes-visual-block2")
+drawAesBlock(iniBlock, "sub-bytes-visual-block1", "stateArray")
+drawAesBlock(u8aToHexSpaced(rowToColumnWise(allAfterSubBytes[0])), "sub-bytes-visual-block2", "After subBytes")
 
-drawAesBlock(u8aToHexSpaced(rowToColumnWise(allAfterSubBytes[0])), "shift-rows-visual-block1")
-drawAesBlock(u8aToHexSpaced(rowToColumnWise(allAfterShiftRows[0])), "shift-rows-visual-block2")
+drawAesBlock(u8aToHexSpaced(rowToColumnWise(allAfterSubBytes[0])), "shift-rows-visual-block1", "After subBytes")
+drawAesBlock(u8aToHexSpaced(rowToColumnWise(allAfterShiftRows[0])), "shift-rows-visual-block2", "After shiftRows")
 
-drawAesBlock(u8aToHexSpaced(rowToColumnWise(allAfterShiftRows[0])), "mix-columns-visual-block1")
-drawAesBlock(fixedMatrix, "mix-columns-visual-block2")
-drawAesBlock(u8aToHexSpaced(rowToColumnWise(allAfterMixColumns[0])), "mix-columns-visual-block3")
+drawAesBlock(u8aToHexSpaced(rowToColumnWise(allAfterShiftRows[0])), "mix-columns-visual-block1", "After shiftRows")
+drawAesBlock(fixedMatrix, "mix-columns-visual-block2", "MixColumns Fixed Matrix")
+drawAesBlock(u8aToHexSpaced(rowToColumnWise(allAfterMixColumns[0])), "mix-columns-visual-block3", "After MixColumns")
 
+drawAesBlock(u8aToHexSpaced(rowToColumnWise(allAfterMixColumns[0])), "add-round-key-visual-block1", "After MixColumns")
+drawAesBlock(u8aToHexSpaced(expandedKey.subarray(16, 32)), "add-round-key-visual-block2", "Round Key")
+drawAesBlock(u8aToHexSpaced(rowToColumnWise(allAfterAddRoundKey[0])), "add-round-key-visual-block3", "After AddRoundKey")
 
 
 subBytesArrowAnimation();
@@ -61,4 +64,6 @@ subBytesArrowAnimation();
 shiftRowsAnimationClick();
 
 mixColumnsMathClick();
+
+fullAesExample();
 
