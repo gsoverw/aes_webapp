@@ -1,11 +1,11 @@
 import "./newAESLogic.js"
 import { u8aToHexSpaced, iniBlock, allAfterSubBytes, allAfterShiftRows, allAfterMixColumns, rowToColumnWise, allAfterAddRoundKey } from "./newAESLogic.js"
-import { keySchedule, drawRcon, drawxOR, rCon, drawArrayBlock, sliderArrows, drawFullKeyExpansion, 
-    drawInitialTransformation, drawAesBlock, fullAesExample } from "./draw.js";
-import { sboxExampleAnimation, subBytesArrowAnimation, shiftRowsAnimationClick, mixColumnsMathClick } from "./animations.js";
-import { rotWordHover } from "./rotWordAnimation.js";
+import { keySchedule, drawRcon, drawxOR, rCon, drawArrayBlock, sliderArrows, 
+    drawInitialTransformation, drawAesBlock, fullAesExample, drawKeyExpansionTable, drawSboxLines } from "./draw.js";
+import { sboxExampleAnimation, subBytesArrowAnimation, shiftRowsAnimationClick, mixColumnsMathClick, 
+         addRoundKeyAnimation, rotWordAnimation, newSboxAnimation } from "./animations.js";
 import { roundKeys } from "./aesLogic.js"
-import { expandedKey } from "./newAESLogic.js";
+import { expandedKey, key, afterAllRotWord, afterAllSubWord } from "./newAESLogic.js";
 
 
 const rConout = ["8b", "84", "eb", "01"];
@@ -18,10 +18,21 @@ const fixedMatrix = [
     0x03, 0x01, 0x01, 0x02
 ];
 
+drawAesBlock(u8aToHexSpaced(key), "k0", "k0", false, true)
+
 keySchedule();
-rotWordHover("rotWordAnimation");
-drawAesBlock(u8aToHexSpaced(expandedKey.subarray(12, 16)), "rotWordAnimation2")
+
+drawAesBlock(u8aToHexSpaced(expandedKey.subarray(12, 16)), "rotWord-visual", "w[3]");
+rotWordAnimation();
 sboxExampleAnimation();
+
+drawAesBlock(u8aToHexSpaced(afterAllRotWord[0]), "sbox-visual-row1")
+drawAesBlock(u8aToHexSpaced(afterAllSubWord[0]), "sbox-visual-row2")
+
+
+drawSboxLines()
+newSboxAnimation()
+
 drawRcon("rConCanvas0");
 drawxOR(rCon[1], result, rConout, ["rC1", "sb", "out"], "rConCanvas1");
 
@@ -31,8 +42,10 @@ drawxOR(roundKeys[1][0], roundKeys[0][1], roundKeys[1][1], ["w4", "w1", "w5"], "
 drawxOR(roundKeys[1][1], roundKeys[0][2], roundKeys[1][2], ["w5", "w2", "w6"], "slideCanvas2");
 drawxOR(roundKeys[1][2], roundKeys[0][2], roundKeys[1][3], ["w6", "w3", "w7"], "slideCanvas3");
 
+drawKeyExpansionTable();
 
-drawArrayBlock(u8aToHexSpaced(expandedKey.subarray(0, 31)), 0, "k0Canvas")
+
+//drawArrayBlock(u8aToHexSpaced(expandedKey.subarray(0, 31)), 0, "k0Canvas")
 
 sliderArrows("slideArrowCanvas1")
 sliderArrows("slideArrowCanvas2")
@@ -40,7 +53,7 @@ sliderArrows("slideArrowCanvas3")
 
 drawArrayBlock(u8aToHexSpaced(expandedKey.subarray(16, 32)), 1, "k1Canvas")
 
-drawFullKeyExpansion(30, "keCalculation")
+//drawFullKeyExpansion(30, "keCalculation")
 
 drawInitialTransformation("itVisual")
 
@@ -65,5 +78,9 @@ shiftRowsAnimationClick();
 
 mixColumnsMathClick();
 
+addRoundKeyAnimation();
+
 fullAesExample();
+
+
 

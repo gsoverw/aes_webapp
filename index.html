@@ -7,57 +7,7 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <div class="body-text">
-            <div class="main-h1">
-                <h1>
-                    A step-by-step visualization on how the AES algorithm works.
-                </h1>
-            </div>
-            <div class="main-button">
-                <button class="nextButton">
-                    Get Started
-                </button>
-            </div>
-        </div>
-        <div class="main-img">
-            <img src="images/roundFunctionImg.png" alt="roundFunctionImg">
-        </div>
-    </div>
-
-    <div class="container">
-        <div class="body-text">
-            <div class="main-h1">
-                <h1>
-                    A quick recap on AES.
-                </h1>
-            </div>
-            <div class="main-p">
-                <p>
-                    The AES algorithm is a symmetric cipher which means it uses a secret key to encypt and decrypt the plantext.
-                    This key can be 128, 192 or 256 bits in length. This visualization will go through the encryption process of AES-128.
-                </p>
-                <p>
-                    AES encypts your plaintext in 'blocks' of 128 bits, these blocks then go through multiple rounds of encryption before
-                    outputting the final ciphertext. 
-                </p>
-                <p>
-                    Each of these rounds of encryption requries something called a 'round key', this round key is obtained by expanding the 
-                    original key in a process called key expansion. We will first go over this key expansion step before moving onto the encryption part.
-                </p>
-            </div>
-            <div class="main-button">
-                <button class="nextButton">
-                    Key Expansion
-                </button>
-            </div>
-        </div>
-
-        <div class="recap-img">
-            <img src="images/aesRoundOverview.png" alt="roundFunctionImg">
-        </div>
-    </div>
-
+    <div class="banner">SITE STILL IN PROGRESS</div>
     <div class="key-expansion">
         <div class="key-explain">
             <div class="key-body-text">
@@ -78,7 +28,7 @@
                         expansion process. Here is our original key "2b 7e 15 16 28 ae d2 a6 ab f7 15 88 09 cf 4f 3c" (which we will call K0) as a 4x4 block with words [w0] - [w3].
                     </p>
                     <div id="k0">
-                        <canvas id="k0Canvas" width="300" height="150"></canvas>
+                        
                     </div>
                     <p>
                         The expansion process has four main components to it.
@@ -113,18 +63,14 @@
                     <p>
                         <code>RotWord([b0, b1, b2, b3]) = [b1, b2, b3, b0]</code>
                     </p>
-                    <div id="rotWordAnimation">
-                        <canvas id="rotWordCanvas0" width="220" height="200"></canvas>
-                        <canvas id="rotWordCanvas1" width="220" height="200"></canvas>
-                    </div>
-                    <div id="rotWordAnimation2"></div>
+                    <div id="rotWord-visual"></div>
                 </div>
             </div>
             <div id="sBox">
                 <div id="sBoxExplanation">
-                    <h1>
+                    <h2>
                         Sbox Explanation:
-                    </h1>
+                    </h2>
                     <p>
                         The sbox subtituion is very simple. We take the first bit of our byte and 
                         look it up on the y-axis of the sbox table. We do the same for the second 
@@ -165,6 +111,11 @@
                             <canvas id="sboxR2" width="40" height="40"></canvas>
                             <canvas id="sboxR3" width="40" height="40"></canvas>
                         </div>
+                    </div>
+                    <div id="sbox-visual">
+                        <div id="sbox-visual-row1"></div>
+                        <div id="sbox-visual-row2"></div>
+                        <svg id="sbox-visual-svg" width="100%" height="100%"></svg>
                     </div>
                 </div>
                 <div id="sBoxPanel">
@@ -233,45 +184,14 @@
             </div>
         </div>
     </div>
-
-    <div class="expansion-example">
+    <div class="key-expansion-example">
         <h2>Full example of each step.</h2>
-        <div id="keyExampleNavBar">
-            <div>
-                <h3><i>i</i></h3>
-            </div>
-            <div>
-                <h3><i>temp</i></h3>
-            </div>
-            <div>
-                <h3>After</h3>
-                <h3><i>RotWord()</i></h3>
-            </div>
-            <div>
-                <h3>After</h3>
-                <h3><i>SubWord()</i></h3>
-            </div>
-            <div>
-                <h3><i>Rcon[]</i></h3>
-                <h3>Value</h3>
-            </div>
-            <div>
-                <h3><i>g()</i></h3>
-                <h3>output</h3>
-            </div>
-            <div>
-                <h3>w[i - Nk]</h3>
-            </div>
-            <div>
-                <h3><i>temp</i> ⊕ </h3>
-                <h3>w[i - Nk]</h3>
-            </div>
-        </div>
-        <div id="keCalculationDiv">
-            <canvas id="keCalculation" width="1300" height="1500"></canvas>
+        <div id="key-expansion-wrapper">
+            <div id="key-expansion-key-value"></div>
+            <div id="key-expansion-text"></div>
+            <div id="expansion-example-table"></div>
         </div>
     </div>
-
     <div id="encryption">
         <h2>The Encryption Proccess</h2>
         <p>Now that we have all of rounds key calculated we can start on the encryption process. 
@@ -353,9 +273,13 @@
                     Each element in the stateArray is xORed with its corresponding element in the round key.
                 </p>
                 <div id="add-round-key-visual">
-                    <div id="add-round-key-visual-block1"></div>
-                    <div id="add-round-key-visual-block2"></div>
-                    <div id="add-round-key-visual-block3"></div>
+                    <div id="add-round-key-visual-container1">
+                        <div id="add-round-key-visual-block1"></div>
+                        <div id="add-round-key-visual-block2"></div>
+                    </div>
+                    <div id="add-round-key-visual-container2">
+                        <div id="add-round-key-visual-block3"></div>
+                    </div>
                     <svg id="add-round-key-svg" width="100%" height="100%"></svg>
                 </div>
             </div>

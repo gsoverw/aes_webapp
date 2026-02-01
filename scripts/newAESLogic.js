@@ -17,7 +17,7 @@ const SBOX = new Uint8Array([
   0x8c,0xa1,0x89,0x0d,0xbf,0xe6,0x42,0x68,0x41,0x99,0x2d,0x0f,0xb0,0x54,0xbb,0x16
 ]);
 
-const RCON = new Uint8Array([
+export const RCON = new Uint8Array([
   0x00, // unused
   0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80,0x1b,0x36
 ]);
@@ -54,6 +54,11 @@ export const key = hexToU8A(keyHex);
 export const pt = hexToU8A(ptHex);
 console.log("key:   " + key)
 console.log("pt:   " + pt)
+
+
+export const afterAllRotWord = [];
+export const afterAllSubWord = [];
+export const afterAllGOut = [];
 
 function keyExpantion(k0) {
     if (!(k0 instanceof Uint8Array) || key.length !== 16) {
@@ -94,21 +99,21 @@ function keyExpantion(k0) {
             word[3] = temp
 
             afterRotWord = word;
-            gFunctionValues.push(u8aToHexSpaced(afterRotWord))
+            afterAllRotWord.push(u8aToHexSpaced(afterRotWord))
             
             //sbox subtitution
             for(let i = 0; i < 4; i++) {
                 word[i] = SBOX[word[i]]
             }
             afterSbox = word;
-            gFunctionValues.push(u8aToHexSpaced(afterSbox))
+            afterAllSubWord.push(u8aToHexSpaced(afterSbox))
             
             //rCon
             word[0] ^= RCON[roundNumber];
             roundNumber++;
 
             afterRcon = word;
-            gFunctionValues.push(u8aToHexSpaced(afterRcon))
+            afterAllGOut.push(u8aToHexSpaced(afterRcon))
         }
         for(let i = 0; i < 4; i++) {
             expandedKey[totalBytes] = expandedKey[totalBytes - 16] ^ word[i];
@@ -117,7 +122,7 @@ function keyExpantion(k0) {
         tempValues.push(u8aToHexSpaced(expandedKey.subarray(totalBytes - 4, totalBytes)));
     }
 }
-
+console.log(u8aToHexSpaced(expandedKey));
 keyExpantion(key)
 
 export function initialTransformation(pt, key) {
@@ -245,7 +250,7 @@ console.log(u8aToHexSpaced(aesEncryption(pt)))
 //console.log(u8aToHexSpaced(allAfterSubBytes[0]))
 //console.log(u8aToHexSpaced(allAfterShiftRows[1]))
 
-
+console.log(tempValues);
 
 export function rowToColumnWise(state) {
     if (state.length !== 16) {

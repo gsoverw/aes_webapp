@@ -1,5 +1,7 @@
 import { gFunctionValues, tempValues, expandedKey, u8aToHexSpaced, pt, key, iniBlock, 
-    allAfterSubBytes, allAfterAddRoundKey, allAfterShiftRows, rowToColumnWise, allAfterMixColumns, resultCypher } from "./newAESLogic.js"
+         allAfterSubBytes, allAfterAddRoundKey, allAfterShiftRows, rowToColumnWise, allAfterMixColumns, 
+         resultCypher, afterAllGOut, afterAllRotWord, afterAllSubWord, RCON } from "./newAESLogic.js"
+
 import { boxSize, offset, sboxAxisHx, sboxAxisHy,
          sboxTargetH, sboxAxisVx, sboxAxisVy, sboxTargetV
         } from "./animations.js"
@@ -289,8 +291,8 @@ export function drawRcon(frameID) {
         for(let j = 0; j < 11; j++) {
             drawSquare(30, 30, j, 18, 100 + (50 * j), 25, frameID, false)
             if(i === 1) {
-            drawSquare(30, 30, rCon[j][0], 18, 100 + (50 * j), 75, frameID, false)
-        }
+                drawSquare(30, 30, rCon[j][0], 18, 100 + (50 * j), 75, frameID, false)
+            }
         }
     }
 }
@@ -341,53 +343,92 @@ function drawvArrow(frameID, startingX, startingY, length, direction) {
     drawArrow(startingX + 10, startingY + (length / 2), startingX + 20, startingY + (length / 2), true, "down", frameID)
 }
 
-export function drawFullKeyExpansion(spacing = 0, frameID) {
-    const canvas = document.getElementById(frameID);
-    const ctx = canvas.getContext('2d');
-    let currentWord; 
-    let swCount = 1;
-    let gCount = 2 
+export function drawKeyExpansionTable() {
+    const tablediv = document.getElementById("expansion-example-table");
+    tablediv.innerHTML = "";
+    const expansionTextDiv = document.getElementById("key-expansion-text")
+    expansionTextDiv.innerHTML = "";
+    const expansionKeyText = document.getElementById("key-expansion-key-value");
+    expansionKeyText.innerHTML = "";
+    expansionKeyText.innerHTML = `Key = <code>${u8aToHexSpaced(key).join(" ")}</code> for Nk = 4, which results in:`;
+
+    for(let i = 0; i < 4; i++) {
+        const expansionTextCell = document.createElement("div")
+        expansionTextCell.innerText = `[w${i}] = ${u8aToHexSpaced(expandedKey.subarray(i * 4, (i * 4) + 4)).join("")}`
+        expansionTextDiv.appendChild(expansionTextCell);
+    }
+
+    const table = document.createElement("table");
+    const headerRow = document.createElement("tr");
+    headerRow.style.marginBottom = "30px";
+    headerRow.style.borderBottom = "3px solid black";
+
+    const headers = ["i", "temp", "after \nrotWord()", "after \nsubWord()", "rCon[]", "After ⊕ \nw/Rcon", "w[i - Nk]", "temp ⊕ \nw[i - Nk]", ""];
+    headers.forEach(headerText => {
+        const headerCell = document.createElement("td");
+        headerCell.innerText = headerText;
+        headerRow.appendChild(headerCell);
+        table.appendChild(headerRow);
+    });
 
     for(let i = 0; i < 40; i++) {
-        ctx.fillStyle = "black";
-        ctx.font = "16px monospace";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(`${i + 4}`, 65, 50 + (spacing * i));
-        ctx.fillText(`w[${i + 4}]`, 1150, 50 + (spacing * i));
-        ctx.fillText("=", 1100, 50 + (spacing * i));
-
-        //Writes temp values
-        ctx.fillText(`${tempValues[i]}`, 160, 50 + (spacing * i));
-
-        //Writes the vales from the g()
-        //Need to find a better way to get the subword and g() values
-        //This count method seems awkward
-        if(i < 10) {
-            ctx.fillText(`${gFunctionValues[i * 3]}`, 285, 50 + ((spacing + 90) * i));
-            ctx.fillText(rCon[i + 1].join(''), 595, 50 + ((spacing + 90) * i));
-            ctx.fillText(`${gFunctionValues[i + swCount]}`, 445, 50 + ((spacing + 90) * i))
-            swCount += 2
-            ctx.fillText(`${gFunctionValues[i + gCount]}`, 725, 50 + ((spacing + 90) * i))
-            gCount += 2
+        const row = document.createElement("tr");
+        function emptyCell() {
+            const emptyCell = document.createElement("td");
+            row.appendChild(emptyCell);
+            table.appendChild(row);
         }
-        currentWord = u8aToHexSpaced(expandedKey.subarray(i * 4, (i * 4) + 4))
-        ctx.fillText(`${currentWord}`, 865, 50 + (spacing * i));
-        ctx.fillText(`${tempValues[i + 1]}`, 1025, 50 + (spacing * i));
-    }
+        const cellI = document.createElement("td");
+        cellI.innerText = i + 4;
+        row.appendChild(cellI);
+        table.appendChild(row);
 
-    for(let i = 0; i < 10; i++) {
-        const lineSpacing = 120
-        if(i === 0) drawArrow(20, 15, 1185, 15, true, "right", frameID)
-        drawArrow(20, 35 + (lineSpacing * i), 1185, 35 + (lineSpacing * i), true, "right", frameID)
+        const cellTemp = document.createElement("td");
+        cellTemp.innerText = tempValues[i].join("");
+        row.appendChild(cellTemp);
+        table.appendChild(row);
+        if (i % 4 === 0) {
+            row.style.borderTop = "3px solid black";
+            row.style.paddingTop = "3px";
 
-        drawArrow(1190, 50 + (lineSpacing * i), 1200, 50 + (lineSpacing * i), true, "right", frameID)
-        drawArrow(1190, 140 + (lineSpacing * i), 1200, 140 + (lineSpacing * i), true, "right", frameID)
-        drawArrow(1200, 95 + (lineSpacing * i), 1210, 95 + (lineSpacing * i), true, "right", frameID)
-        drawArrow(1200, 50 + (lineSpacing * i), 1200, 140 + (lineSpacing * i), true, "right", frameID)
-        ctx.font = "20px monospace";
-        ctx.fillText(`k${i + 1}`, 1230, 95 + (lineSpacing * i));
+            const cellRotWord = document.createElement("td");
+            cellRotWord.innerText = afterAllRotWord[i / 4].join("");
+            row.appendChild(cellRotWord);
+            
+            const cellSubWord = document.createElement("td");
+            cellSubWord.innerText = afterAllSubWord[i / 4].join("");
+            row.appendChild(cellSubWord);
+
+            const cellRcon = document.createElement("td");
+            cellRcon.innerText = RCON[i /4].toString(2).padStart(8, '0');
+            row.appendChild(cellRcon);
+
+            const cellGOutput = document.createElement("td");
+            cellGOutput.innerText = afterAllGOut[i / 4].join("")
+            row.appendChild(cellGOutput);
+            table.appendChild(row)
+        } else {
+            emptyCell();
+            emptyCell();
+            emptyCell();
+            emptyCell();
+        }
+        const wPrevious = document.createElement("td");
+        wPrevious.innerText = u8aToHexSpaced(expandedKey.subarray(i * 4, (i * 4) + 4)).join("")
+        row.appendChild(wPrevious);
+        table.appendChild(row)
+
+        const afterXorTemp = document.createElement("td");
+        afterXorTemp.innerText = tempValues[i + 1].join("");
+        row.appendChild(afterXorTemp);
+        table.appendChild(row)
+
+        const wValue = document.createElement("td")
+        wValue.innerText = `-----> = w[${i + 4}]`
+        row.appendChild(wValue);
+        table.appendChild(row)
     }
+    tablediv.appendChild(table);
 }
 
 export function drawInitialTransformation(frameID) {
@@ -412,13 +453,13 @@ export function drawInitialTransformation(frameID) {
     drawvArrow(frameID, 600, 15, 120, "right")
     drawArrayBlock(u8aToHexSpaced(iniBlock), 0, frameID, false, "rowWise", 40, 700)
 }
-export function drawAesBlock(block, parentContainer, blockText, mini=false) {
+export function drawAesBlock(block, parentContainer, blockText="", mini=false, wValues=false) {
     const container = document.getElementById(parentContainer);
     container.innerHTML = "";
-
+    container.style.display = "inline-block";
     for (let row = 0; row < 4; row++) {
         const rowEl = document.createElement("div");
-        rowEl.className = `aes-row row-${row}`;
+        rowEl.className = mini ? "aes-row-mini" : `aes-row row-${row}`;
         if(mini) rowEl.classList.add("aes-row-mini");
         rowEl.dataset.row = row;
 
@@ -431,19 +472,26 @@ export function drawAesBlock(block, parentContainer, blockText, mini=false) {
             cell.dataset.row = row;
             cell.textContent = u8aToHexSpaced(block)[index];
             rowEl.appendChild(cell);
+
+            if(col === 3 && wValues === true) {
+                const cell = document.createElement("div");
+                cell.className = "w-label";
+                cell.textContent = `w[${row}]`;
+                rowEl.appendChild(cell)
+            }
         }
         container.appendChild(rowEl);
-        if(block.length < 5) break; //only one row
+        if(block.length < 5) {break}; //only one row
     }
-
     if(blockText === "") return;
 
     const blockName = document.createElement("div");
     blockName.textContent = blockText;
     blockName.style.fontWeight = "bold";
     blockName.style.fontStyle = "italic";
+    blockName.style.fontSize = "18px";
     blockName.style.textAlign = "center";
-    blockName.style.marginTop = "10px";
+    blockName.style.marginTop = "15px";
     container.appendChild(blockName);
 }
 export function drawMixColumnsMathHeader(cell) {
@@ -529,7 +577,7 @@ export function fullAesExample() {
         "After<br>subBytes",
         "After<br>shiftRows",
         "After<br>mixColumns",
-        "Round<br>Key Value"
+        "xOR w/<br>Round Key"
     ];
 
     const headerRow = document.createElement("div");
@@ -619,9 +667,138 @@ export function fullAesExample() {
         }
     }
 }
-export function drawSvgLine(fromSq, toSq) {
-    const svg = document.getElementById("sub-bytes-svg");
+function drawXorSymbolSvg(svg, cx, cy, radius = 10) {
+    const ns = "http://www.w3.org/2000/svg";
+    const group = document.createElementNS(ns, "g");
+    // Circle
+    const circle = document.createElementNS(ns, "circle");
+    circle.setAttribute("cx", cx);
+    circle.setAttribute("cy", cy);
+    circle.setAttribute("r", radius);
+    circle.setAttribute("stroke", "black");
+    circle.setAttribute("stroke-width", "3");
+    circle.setAttribute("fill", "none");
+    // Horizontal line
+    const hLine = document.createElementNS(ns, "line");
+    hLine.setAttribute("x1", cx - radius);
+    hLine.setAttribute("y1", cy);
+    hLine.setAttribute("x2", cx + radius);
+    hLine.setAttribute("y2", cy);
+    hLine.setAttribute("stroke", "black");
+    hLine.setAttribute("stroke-width", "3");
+    // Vertical line
+    const vLine = document.createElementNS(ns, "line");
+    vLine.setAttribute("x1", cx);
+    vLine.setAttribute("y1", cy - radius);
+    vLine.setAttribute("x2", cx);
+    vLine.setAttribute("y2", cy + radius);
+    vLine.setAttribute("stroke", "black");
+    vLine.setAttribute("stroke-width", "3");
+    group.append(circle, hLine, vLine);
+    svg.appendChild(group);
+    return group;
+}
+export function drawAddRoundKeyLine(s1, s2, s3) {
+    const svg = document.getElementById("add-round-key-svg");
     svg.innerHTML = "";
+
+    const sq1 = s1.getBoundingClientRect();
+    const sq2 = s2.getBoundingClientRect();
+    const sq3 = s3.getBoundingClientRect();
+    const svgRect = svg.getBoundingClientRect();
+
+    const sq1X = sq1.left + (sq1.width / 2) - svgRect.left;
+    const sq1Y = sq1.top + (sq1.height / 2) - svgRect.top;
+    const sq2X = sq2.left + (sq2.width / 2) - svgRect.left;
+    const sq2Y = sq2.top + (sq2.height / 2) - svgRect.top;
+    const sq3X = sq3.left + (sq3.width / 2) - svgRect.left;
+    const sq3Y = sq3.top + (sq3.height / 2) - svgRect.top;
+
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    const meetingPointX = (sq1X + (5 * sq1.width));
+    const meetingPointY = (sq2Y - sq1Y) / 2 + sq1Y;
+
+    function createCurve(svg, startX, startY, ctrlX, ctrlY, endX, endY) {
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute(
+            "d",
+            `M ${startX} ${startY} Q ${ctrlX} ${ctrlY} ${endX} ${endY}`
+        );
+        path.setAttribute("stroke", "black");
+        path.setAttribute("stroke-width", "3");
+        path.setAttribute("fill", "none");
+        svg.appendChild(path);
+        return path;
+    }
+
+    const path1 = createCurve(svg, sq1X, sq1Y, meetingPointX, sq1Y, meetingPointX, meetingPointY);
+    const path2 = createCurve(svg, sq2X, sq2Y, meetingPointX, sq2Y, meetingPointX, meetingPointY);
+    const path3 = createCurve(svg, meetingPointX + 15, meetingPointY, meetingPointX, meetingPointY, sq3X, sq3Y);
+
+    [path1, path2, path3].forEach(path => {
+        const pathLength = path.getTotalLength();
+        path.style.strokeDasharray = pathLength;
+        path.style.strokeDashoffset = pathLength;
+        path.style.transition = "stroke-dashoffset 0.75s ease";
+        svg.appendChild(path);
+
+        // Trigger animation
+        requestAnimationFrame(() => {
+            path.style.strokeDashoffset = 0;
+        });
+    });
+
+    function animatePath(path, delay = 0) {
+        const length = path.getTotalLength();
+        path.style.strokeDasharray = length;
+        path.style.strokeDashoffset = length;
+        path.style.transition = "stroke-dashoffset 0.75s ease";
+
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                path.style.strokeDashoffset = 0;
+            }, delay);
+        });
+    }
+
+    animatePath(path1);
+    animatePath(path2);
+    animatePath(path3, 1500);
+
+    drawXorSymbolSvg(svg, meetingPointX, meetingPointY, 15);
+
+    const calcContainer = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    calcContainer.setAttribute("x", meetingPointX + 25); // subtract half width to center
+    calcContainer.setAttribute("y", meetingPointY + 25); // subtract half height
+    calcContainer.setAttribute("width", 250);
+    calcContainer.setAttribute("height", 100);
+    calcContainer.setAttribute("fill", "#9aff9a");
+    calcContainer.setAttribute("stroke", "black");
+    svg.appendChild(calcContainer);
+
+    function drawSvgText(svg, x, y, content) {
+        const ns = "http://www.w3.org/2000/svg";
+        const text = document.createElementNS(ns, "text");
+
+        text.setAttribute("x", x);
+        text.setAttribute("y", y);
+        text.setAttribute("text-anchor", "center");
+        text.setAttribute("dominant-baseline", "hanging");
+
+        text.textContent = content;
+
+        svg.appendChild(text);
+        return text;
+    }
+    drawSvgText(svg, calcContainer.getBoundingClientRect().left - calcContainer.getBoundingClientRect().width / 2, meetingPointY + 30, `${s1.textContent} ⊕ ${s2.textContent}`);
+    drawSvgText(svg, meetingPointX + 50, meetingPointY + 50, `${parseInt(s1.textContent, 16).toString(2).padStart(8, '0')} ⊕ ${parseInt(s1.textContent, 16).toString(2).padStart(8, '0')}`);
+
+}
+export function drawSvgLine(fromSq, toSq, frameID) {
+    const svg = document.getElementById(frameID);
+    if(frameID !== "sbox-visual-svg") {
+        svg.innerHTML = "";
+    }
 
     const sq1 = fromSq.getBoundingClientRect();
     const sq2 = toSq.getBoundingClientRect();
@@ -677,4 +854,16 @@ export function drawSvgLine(fromSq, toSq) {
     text.setAttribute("font-family", "monospace");
     text.textContent = "S-Box"; 
     svg.appendChild(text);
+}
+export function drawSboxLines() {
+    const row1 = document.getElementById("sbox-visual-row1")
+    const row2 = document.getElementById("sbox-visual-row2")
+    const svg = document.getElementById("sbox-visual-svg");
+    svg.style.zIndex = "-1";
+
+    const cells1 = Array.from(row1.querySelectorAll(".aes-cell"));
+    const cells2 = Array.from(row2.querySelectorAll(".aes-cell"));
+    for(let i = 0; i < 4; i++) {
+        drawSvgLine(cells1[i], cells2[i], "sbox-visual-svg")
+    }
 }
