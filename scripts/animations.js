@@ -1,4 +1,4 @@
-import { drawHAxisBox, drawVAxisBox, drawResult, drawSboxExample, drawSBox, drawSvgLine, drawMixColumnsMathHeader, drawAddRoundKeyLine } from "./draw.js"
+import { drawHAxisBox, drawVAxisBox, drawResult, drawSboxExample, drawSBox, drawSvgLine, drawMixColumnsMathHeader, drawAddRoundKeyLine, newSboxDraw } from "./draw.js"
 
 export let boxSize = 30;
 export let offset = boxSize * 1.42;
@@ -229,6 +229,7 @@ export function addRoundKeyAnimation() {
 export function subBytesArrowAnimation() {
     const block1 = document.getElementById("sub-bytes-visual-block1");
     const block2 = document.getElementById("sub-bytes-visual-block2");
+    const sboxWrapper = document.getElementById("sbox-slider-wrapper");
     const svg = document.getElementById("sub-bytes-svg");
 
     let lastTargetCell = null;
@@ -249,13 +250,19 @@ export function subBytesArrowAnimation() {
 
         drawSvgLine(cell, targetCell, "sub-bytes-svg");
         
-        slideInSBox(cell.textContent, cell);
+        //slideInSBox(cell.textContent, cell);
+        newSboxDraw(cell.textContent);
+        sboxWrapper.style.display = "block";    
+        sboxWrapper.style.right = "150px";
+        
     });
     block1.addEventListener("mouseleave", () => {
         if (lastTargetCell) {
             lastTargetCell.classList.remove("target-highlight");
             lastTargetCell = null;
         }
+        sboxWrapper.style.display = "none";
+        sboxWrapper.style.right = "-950px";
         svg.innerHTML = "";
     });
 }
@@ -364,12 +371,20 @@ export function mixColumnsMathClick() {
     });
 }
 export function newSboxAnimation() {
+    const wrapper = document.getElementById("sbox-slider-wrapper");
     const row1 = document.getElementById("sbox-visual-row1");
     const cells = Array.from(row1.querySelectorAll(".aes-cell"));
 
     cells.forEach(cell => {
         cell.addEventListener("mouseover", () => {
-            slideInSBox(cell.textContent, cell);
+            //slideInSBox(cell.textContent, cell);
+            newSboxDraw(cell.textContent)
+            wrapper.style.display = "block";
+            wrapper.style.right = "150px";
+        });
+        cell.addEventListener("mouseout", () => {
+            wrapper.style.display = "none";
+            wrapper.style.right = "-950px";
         });
     });
 }

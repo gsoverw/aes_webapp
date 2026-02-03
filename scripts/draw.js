@@ -453,6 +453,102 @@ export function drawInitialTransformation(frameID) {
     drawvArrow(frameID, 600, 15, 120, "right")
     drawArrayBlock(u8aToHexSpaced(iniBlock), 0, frameID, false, "rowWise", 40, 700)
 }
+export function drawSbox() {
+    const container = document.getElementById("sbox-slider");
+    container.innerHTML = "";
+
+    // Draw column labels (0-F across the top)
+    const topLeftCorner = document.createElement("div");
+    topLeftCorner.style.marginBottom = "15px";
+    topLeftCorner.style.marginRight = "20px";
+    container.appendChild(topLeftCorner);
+    
+    for(let col = 0; col < 16; col++) {
+        const label = document.createElement("div");
+        label.className = `sbox-cell headerCol`
+        label.style.marginBottom = "15px";
+        label.textContent = sBoxLabels[col];
+        container.appendChild(label);
+    }
+    // Draw rows with row labels and sBox values
+    for(let row = 0; row < 16; row++) {
+        // Draw row label
+        const rowLabel = document.createElement("div");
+        rowLabel.className = `sbox-cell headerRow`
+        rowLabel.style.marginRight = "20px";
+        rowLabel.textContent = sBoxLabels[row];
+        container.appendChild(rowLabel);
+        
+        // Draw sBox cells for this row
+        for(let col = 0; col < 16; col++) {
+            const cell = document.createElement("div");
+            cell.className = `sbox-cell cell-${col}`
+            cell.dataset.col = col;
+            cell.dataset.row = row;
+            cell.textContent = sBox[row][col];
+            container.appendChild(cell);
+        }
+    }
+}
+export function newSboxDraw(hoveredCellText) {
+    const container = document.getElementById("sbox-slider")
+    const containerSvg = document.getElementById("sbox-slider-svg")
+    const containerCellsCol = Array.from(container.querySelectorAll(".headerCol"));
+    const containerCellsRow = Array.from(container.querySelectorAll(".headerRow"));
+    const containerCells = Array.from(container.querySelectorAll(".sbox-cell"));
+
+    containerSvg.innerHTML = "";
+    //clear previous highlights
+    containerCells.forEach(div => {
+        div.classList.remove("sbox-highlight-cell")
+        div.classList.remove("sbox-highlight");
+    });
+    const rowHighlight = containerCellsRow.find(div =>
+        div.classList.contains(`headerRow`) && div.textContent === hoveredCellText[0]
+    );
+    const colHighlight = containerCellsCol.find(div =>
+        div.classList.contains(`headerCol`) && div.textContent === hoveredCellText[1]
+    );
+    const targetCell = containerCells.find(div =>
+        div.dataset.row === parseInt(hoveredCellText[0], 16).toString() &&
+        div.dataset.col === parseInt(hoveredCellText[1], 16).toString()
+    );
+    drawSboxSvgLines(rowHighlight, colHighlight, targetCell);
+    rowHighlight.classList.add("sbox-highlight-cell");
+    colHighlight.classList.add("sbox-highlight-cell");
+    targetCell.classList.add("sbox-highlight");
+}
+export function drawSboxSvgLines(rowSq, colSq, targetSq) {
+    const containerSvg = document.getElementById("sbox-slider-svg");
+    containerSvg.innerHTML = "";
+
+    const rowRect = rowSq.getBoundingClientRect();
+    const colRect = colSq.getBoundingClientRect();
+    const targetRect = targetSq.getBoundingClientRect();
+
+    const targetCenterY = targetRect.top + targetRect.height / 2 - containerSvg.getBoundingClientRect().top;
+
+    // Draw horizontal line from rowSq to targetSq
+    const hLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    hLine.setAttribute("x1", rowRect.right - containerSvg.getBoundingClientRect().left);
+    hLine.setAttribute("y1", targetCenterY);
+    hLine.setAttribute("x2", targetRect.left - containerSvg.getBoundingClientRect().left);
+    hLine.setAttribute("y2", targetCenterY);
+    hLine.setAttribute("stroke", "lightblue");
+    hLine.setAttribute("stroke-width", "2");
+    containerSvg.appendChild(hLine);
+
+    // Draw vertical line from colSq to targetSq
+    const targetCenterX = targetRect.left + targetRect.width / 2 - containerSvg.getBoundingClientRect().left;
+    const vLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    vLine.setAttribute("x1", targetCenterX);
+    vLine.setAttribute("y1", colRect.bottom - containerSvg.getBoundingClientRect().top);
+    vLine.setAttribute("x2", targetCenterX);
+    vLine.setAttribute("y2", targetRect.top - containerSvg.getBoundingClientRect().top);
+    vLine.setAttribute("stroke", "lightblue");
+    vLine.setAttribute("stroke-width", "2");
+    containerSvg.appendChild(vLine);
+}
 export function drawAesBlock(block, parentContainer, blockText="", mini=false, wValues=false) {
     const container = document.getElementById(parentContainer);
     container.innerHTML = "";
@@ -792,14 +888,12 @@ export function drawAddRoundKeyLine(s1, s2, s3) {
     }
     drawSvgText(svg, calcContainer.getBoundingClientRect().left - calcContainer.getBoundingClientRect().width / 2, meetingPointY + 30, `${s1.textContent} ⊕ ${s2.textContent}`);
     drawSvgText(svg, meetingPointX + 50, meetingPointY + 50, `${parseInt(s1.textContent, 16).toString(2).padStart(8, '0')} ⊕ ${parseInt(s1.textContent, 16).toString(2).padStart(8, '0')}`);
-
 }
 export function drawSvgLine(fromSq, toSq, frameID) {
     const svg = document.getElementById(frameID);
     if(frameID !== "sbox-visual-svg") {
         svg.innerHTML = "";
     }
-
     const sq1 = fromSq.getBoundingClientRect();
     const sq2 = toSq.getBoundingClientRect();
     const svgRect = svg.getBoundingClientRect();
@@ -855,7 +949,7 @@ export function drawSvgLine(fromSq, toSq, frameID) {
     text.textContent = "S-Box"; 
     svg.appendChild(text);
 }
-export function drawSboxLines() {
+export function drawSboxVisualLines() {
     const row1 = document.getElementById("sbox-visual-row1")
     const row2 = document.getElementById("sbox-visual-row2")
     const svg = document.getElementById("sbox-visual-svg");

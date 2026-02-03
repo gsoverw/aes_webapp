@@ -1,7 +1,8 @@
 import "./newAESLogic.js"
 import { u8aToHexSpaced, iniBlock, allAfterSubBytes, allAfterShiftRows, allAfterMixColumns, rowToColumnWise, allAfterAddRoundKey } from "./newAESLogic.js"
 import { keySchedule, drawRcon, drawxOR, rCon, drawArrayBlock, sliderArrows, 
-    drawInitialTransformation, drawAesBlock, fullAesExample, drawKeyExpansionTable, drawSboxLines } from "./draw.js";
+         drawInitialTransformation, drawAesBlock, fullAesExample, drawKeyExpansionTable, drawSbox,
+         drawSboxVisualLines } from "./draw.js";
 import { sboxExampleAnimation, subBytesArrowAnimation, shiftRowsAnimationClick, mixColumnsMathClick, 
          addRoundKeyAnimation, rotWordAnimation, newSboxAnimation } from "./animations.js";
 import { roundKeys } from "./aesLogic.js"
@@ -24,14 +25,17 @@ keySchedule();
 
 drawAesBlock(u8aToHexSpaced(expandedKey.subarray(12, 16)), "rotWord-visual", "w[3]");
 rotWordAnimation();
-sboxExampleAnimation();
+//sboxExampleAnimation();
 
 drawAesBlock(u8aToHexSpaced(afterAllRotWord[0]), "sbox-visual-row1")
 drawAesBlock(u8aToHexSpaced(afterAllSubWord[0]), "sbox-visual-row2")
 
 
-drawSboxLines()
-newSboxAnimation()
+drawSbox();
+newSboxAnimation();
+drawSboxVisualLines()
+
+
 
 drawRcon("rConCanvas0");
 drawxOR(rCon[1], result, rConout, ["rC1", "sb", "out"], "rConCanvas1");
@@ -44,12 +48,9 @@ drawxOR(roundKeys[1][2], roundKeys[0][2], roundKeys[1][3], ["w6", "w3", "w7"], "
 
 drawKeyExpansionTable();
 
-
-//drawArrayBlock(u8aToHexSpaced(expandedKey.subarray(0, 31)), 0, "k0Canvas")
-
-sliderArrows("slideArrowCanvas1")
-sliderArrows("slideArrowCanvas2")
-sliderArrows("slideArrowCanvas3")
+//sliderArrows("slideArrowCanvas1")
+//sliderArrows("slideArrowCanvas2")
+//sliderArrows("slideArrowCanvas3")
 
 drawArrayBlock(u8aToHexSpaced(expandedKey.subarray(16, 32)), 1, "k1Canvas")
 
@@ -57,7 +58,7 @@ drawArrayBlock(u8aToHexSpaced(expandedKey.subarray(16, 32)), 1, "k1Canvas")
 
 drawInitialTransformation("itVisual")
 
-drawAesBlock(iniBlock, "sub-bytes-visual-block1", "stateArray")
+drawAesBlock(rowToColumnWise(iniBlock), "sub-bytes-visual-block1", "stateArray")
 drawAesBlock(u8aToHexSpaced(rowToColumnWise(allAfterSubBytes[0])), "sub-bytes-visual-block2", "After subBytes")
 
 drawAesBlock(u8aToHexSpaced(rowToColumnWise(allAfterSubBytes[0])), "shift-rows-visual-block1", "After subBytes")
