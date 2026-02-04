@@ -109,7 +109,6 @@ export function polynomialToBinary(polyStr) {
 
     return value.toString(2).padStart(8, "0");
 }
-
 export function hexToPolynomial(hexStr) {
     // Parse hex string to integer (0–255)
     const value = parseInt(hexStr, 16);
@@ -128,4 +127,20 @@ export function hexToPolynomial(hexStr) {
         }
     }
     return terms.join(" + ");
+}
+export function svgArrowHead(svg) {
+    const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+    const marker = document.createElementNS("http://www.w3.org/2000/svg", "marker");
+    marker.setAttribute("id", "arrowhead");
+    marker.setAttribute("markerWidth", "10");
+    marker.setAttribute("markerHeight", "7");
+    marker.setAttribute("refX", "0");
+    marker.setAttribute("refY", "3.5");
+    marker.setAttribute("orient", "auto");
+    const markerPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    markerPath.setAttribute("d", "M0,0 L0,7 L10,3.5 z");
+    markerPath.setAttribute("fill", "black");
+    marker.appendChild(markerPath);
+    defs.appendChild(marker);
+    svg.appendChild(defs);
 }

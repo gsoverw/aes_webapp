@@ -1,18 +1,9 @@
-import { gFunctionValues, tempValues, expandedKey, u8aToHexSpaced, pt, key, iniBlock, 
+import { tempValues, expandedKey, u8aToHexSpaced, pt, key, iniBlock, 
          allAfterSubBytes, allAfterAddRoundKey, allAfterShiftRows, rowToColumnWise, allAfterMixColumns, 
          resultCypher, afterAllGOut, afterAllRotWord, afterAllSubWord, RCON } from "./newAESLogic.js"
 
-import { boxSize, offset, sboxAxisHx, sboxAxisHy,
-         sboxTargetH, sboxAxisVx, sboxAxisVy, sboxTargetV
-        } from "./animations.js"
 
-import { SBOX_FRAME_1, SBOX_FRAME_3 } from "./animations.js";
-import { multiplyBinaryPolynomials, reduceAESPolynomial, polynomialToBinary, hexToPolynomial } from "./utils.js";
-
-const w3 = ["09", "cf", "4f", "3c"]
-const afterRotWord = ["cf", "4f", "3c", "09"]
-const afterSbox = ["8a", "84", "eb", "01"]
-const afterRcon = ["8b", "84", "eb", "01"]
+import { multiplyBinaryPolynomials, reduceAESPolynomial, polynomialToBinary, hexToPolynomial, svgArrowHead } from "./utils.js";
 
 const sBox = [
     ['63', '7c', '77', '7b', 'f2', '6b', '6f', 'c5', '30', '01', '67', '2b', 'fe', 'd7', 'ab', '76'],
@@ -32,7 +23,6 @@ const sBox = [
     ['e1', 'f8', '98', '11', '69', 'd9', '8e', '94', '9b', '1e', '87', 'e9', 'ce', '55', '28', 'df'],
     ['8c', 'a1', '89', '0d', 'bf', 'e6', '42', '68', '41', '99', '2d', '0f', 'b0', '54', 'bb', '16']
 ];
-
 export const rCon = [
     ['00','00','00','00'],
     ['01','00','00','00'],
@@ -46,42 +36,9 @@ export const rCon = [
     ['1B','00','00','00'],
     ['36','00','00','00']
 ];
-
 const sBoxLabels = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"]
-
-let highlightBoxSize = boxSize + 10;
-
-export function drawSBox(frameID) {
-    const canvas = document.getElementById(frameID);
-    const ctx = canvas.getContext('2d');    
-    
-    for(let i = 0; i < 16; i++) {
-        ctx.fillStyle = "rgb(128 128 128)"
-        ctx.fillRect(100 + (offset * i), 25, boxSize, boxSize);
-        ctx.fillStyle = "rgb(128 128 128)"
-        ctx.fillRect(25, 100 + (offset * i), boxSize, boxSize);
-
-        ctx.fillStyle = "black";
-        ctx.font = "18px Arial";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(sBoxLabels[i], 100 + ((offset * i) + (boxSize / 2)), 25 + (boxSize / 2));
-        ctx.fillText(sBoxLabels[i], 25 + (boxSize / 2), 100 + ((offset * i) + (boxSize / 2)));
-    }
-
-    for(let i = 0; i < 16; i++) {
-        for(let j = 0; j < 16; j++) {
-            ctx.fillStyle = "rgb(128 128 128)"
-            ctx.fillRect(100 + (offset * j), 100 + (offset * i), boxSize, boxSize);
-
-            ctx.fillStyle = "black";
-            ctx.font = "18px Arial";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillText(sBox[i][j], 100 + ((offset * j) + (boxSize / 2)), 100 + ((offset * i) + (boxSize / 2)));
-        }
-    }
-}
+const rConout = ["8b", "84", "eb", "01"];
+const result = ["8a", "84", "eb", "01"];
 
 //draw a square where you can pick the size
 export function drawSquare(w, h, text, fontSize, xpos, ypos, frameID, clear = false) {
@@ -97,37 +54,6 @@ export function drawSquare(w, h, text, fontSize, xpos, ypos, frameID, clear = fa
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(text, xpos + (w / 2), ypos + (h / 2));
-}
-export function drawArrayBlock(arr, kVal, frameID, iskVal = true, direction = "rowWise", spacing = 40, staringX = 0, staringY = 0) {
-    const canvas = document.getElementById(frameID);
-    const ctx = canvas.getContext('2d');
-
-    if(iskVal === true) {
-        let kStart = staringX + 25;
-        ctx.fillStyle = "black";
-        ctx.font = "20px monospace";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText("k" + kVal + " =", kStart, 70)
-
-        for(let i = 0; i < 4; i++) {
-            ctx.fillStyle = "black";
-            ctx.font = "18px monospace";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillText("w" + (i + (kVal * 4)), staringX + 75, 15 + (spacing * i));
-
-            for(let j = 0; j < 4; j++) {
-                if(direction === "rowWise") drawSquare(30, 30, arr[(i * 4) + j], 18, staringX + (105 + (40 * j)), staringY + (spacing * i), frameID, false)
-            }
-        }
-    } else {
-        for(let i = 0; i < 4; i++) {
-            for(let j = 0; j < 4; j++) {
-                if(direction === "rowWise") drawSquare(30, 30, arr[(i * 4) + j], 18, staringX + (spacing * j), staringY + (spacing * i), frameID, false)
-            }
-        }
-    }
 }
 
 export function drawArrow(startX, startY, endingX, endingY, noHead = false, headDirection, frameID) {
@@ -194,57 +120,7 @@ export function drawXorCircle(xCord, yCord, raii, frameID) {
     ctx.lineWidth = 2;
     ctx.stroke();
 }
-
-export function drawHAxisBox() {
-    const canvas = document.getElementById(SBOX_FRAME_1);
-    const ctx = canvas.getContext('2d');           
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "red"
-    ctx.fillRect(sboxAxisHx, sboxAxisHy, highlightBoxSize, highlightBoxSize) 
-}
-
-export function drawVAxisBox() {
-    const canvas = document.getElementById(SBOX_FRAME_1);
-    const ctx = canvas.getContext('2d');   
-
-    ctx.fillStyle = "red"
-    ctx.fillRect(sboxAxisVx, sboxAxisVy, highlightBoxSize, highlightBoxSize)
-}
-
-export function drawResult() {
-    const canvas = document.getElementById(SBOX_FRAME_3);
-    const ctx = canvas.getContext('2d');   
-
-    ctx.fillStyle = "green"
-    ctx.fillRect(sboxTargetH, sboxTargetV, highlightBoxSize, highlightBoxSize)
-}
-export function sboxExampleArr(arr, frameID) {
-    for(let i = 0; i < 4; i++) {
-        drawSquare(40, 40, arr[i], 18, 0, 0, frameID + i)
-    }
-}
-export function sboxExampleArrow(frameID) {
-    for(let i = 0; i < 4; i++) {
-        drawArrow(20, 0, 20, 100, false, "down", frameID + i)
-    }
-}
-export function sboxExampleSbox(frameID) {
-    for(let i = 0; i < 4; i++) {
-        drawSquare(80, 40, "sbox", 20, 0, 0, frameID + i)
-    }
-}
-
-export function drawSboxExample() {
-    sboxExampleArr(afterRotWord, "sboxw");
-    sboxExampleArrow("sboxArrow");
-    sboxExampleSbox("sboxHover");
-    sboxExampleArrow("sboxArrowA");
-    sboxExampleArr(afterSbox, "sboxR")
-}
-
 export function keySchedule() {
-
     //Draws [w0] - [w7]
     let wval = 4;
     for(let i = 0; i < 4; i++) {
@@ -274,75 +150,6 @@ export function keySchedule() {
         drawArrow(200 + (90 * i), 555, 200 + (90 * i), 465,  true, "right", "keyScheduleCanvas")
     } 
 }
-
-export function drawRcon(frameID) {
-    const canvas = document.getElementById(frameID);
-    const ctx = canvas.getContext('2d');
-
-    //Draw text
-    ctx.fillStyle = "black";
-    ctx.font = "20px Arial";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("Round #", 40, 40);
-    ctx.fillText("rCi", 40, 90);
-
-    for(let i = 0; i < 2; i++) {
-        for(let j = 0; j < 11; j++) {
-            drawSquare(30, 30, j, 18, 100 + (50 * j), 25, frameID, false)
-            if(i === 1) {
-                drawSquare(30, 30, rCon[j][0], 18, 100 + (50 * j), 75, frameID, false)
-            }
-        }
-    }
-}
-
-export function drawxOR(arr1, arr2, arr3, legendArr, frameID) {
-    const canvas = document.getElementById(frameID);
-    const ctx = canvas.getContext('2d');
-    
-    ctx.fillStyle = "black";
-    ctx.font = "20px monospace";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(legendArr[0] + " =", 30, 15);
-    ctx.fillText(legendArr[1] + " =", 30, 165);
-    ctx.fillText(legendArr[2] + " =", 30, 240);
-
-    for(let i = 0; i < 4; i++) {
-        drawSquare(30, 30, arr1[i], 18, 91 + (100 * i), 0, frameID)
-        drawSquare(30, 30, arr2[i], 18, 90 + (100 * i), 150, frameID)
-
-        drawXorCircle(106, 90, 15, frameID);
-        drawXorCircle(106 + (100 * i), 90, 15, frameID);
-
-        drawArrow(106 + (100 * i), 30, 106 + (100 * i), 75, false, "down", frameID);
-        drawArrow(106 + (100 * i), 150, 106 + (100 * i), 105, false, "up", frameID);
-        drawArrow(106 + (100 * i), 90, 151 + (100 * i), 90, true, "right", frameID);
-        drawArrow(151 + (100 * i), 90, 151 + (100 * i), 225, false, "down", frameID);
-
-        drawSquare(30, 30, arr3[i], 18, 136 + (100 * i), 225, frameID);
-    }
-}
-
-export function sliderArrows(frameID) {
-    drawArrow(20, 240, 65, 240, true, "right", frameID);
-    drawArrow(65, 240, 65, 15, true, "up", frameID);
-    drawArrow(65, 15, 115, 15, false, "right", frameID);
-}
-
-
-function drawvArrow(frameID, startingX, startingY, length, direction) {
-    //top line
-    drawArrow(startingX, startingY, startingX + 10, startingY, true, "right", frameID);
-    //bottom line
-    drawArrow(startingX, startingY + length, startingX + 10, startingY + length, true, "right", frameID)
-    //middle line
-    drawArrow(startingX + 10, startingY, startingX + 10, startingY + length, true, "down", frameID)
-    //right line
-    drawArrow(startingX + 10, startingY + (length / 2), startingX + 20, startingY + (length / 2), true, "down", frameID)
-}
-
 export function drawKeyExpansionTable() {
     const tablediv = document.getElementById("expansion-example-table");
     tablediv.innerHTML = "";
@@ -429,29 +236,6 @@ export function drawKeyExpansionTable() {
         table.appendChild(row)
     }
     tablediv.appendChild(table);
-}
-
-export function drawInitialTransformation(frameID) {
-    const canvas = document.getElementById(frameID);
-    const ctx = canvas.getContext('2d');
-
-    //P block
-    drawArrayBlock(u8aToHexSpaced(pt), 0, frameID, false, "rowWise", 40)
-    drawXorCircle(250, 75, 15, frameID)
-    drawXorCircle(250, 75, 15, frameID)
-    //k0 block
-    drawArrayBlock(u8aToHexSpaced(key), 0, frameID, false, "rowWise", 40, 350)
-
-    ctx.fillStyle = "black";
-    ctx.font = "italic 20px monospace";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("P", 75, 200);
-    ctx.fillText("k0", 425, 200);
-    ctx.fillText("stateArray", 775, 200);
-
-    drawvArrow(frameID, 600, 15, 120, "right")
-    drawArrayBlock(u8aToHexSpaced(iniBlock), 0, frameID, false, "rowWise", 40, 700)
 }
 export function drawSbox() {
     const container = document.getElementById("sbox-slider");
@@ -580,7 +364,6 @@ export function drawAesBlock(block, parentContainer, blockText="", mini=false, w
         if(block.length < 5) {break}; //only one row
     }
     if(blockText === "") return;
-
     const blockName = document.createElement("div");
     blockName.textContent = blockText;
     blockName.style.fontWeight = "bold";
@@ -588,7 +371,255 @@ export function drawAesBlock(block, parentContainer, blockText="", mini=false, w
     blockName.style.fontSize = "18px";
     blockName.style.textAlign = "center";
     blockName.style.marginTop = "15px";
+    blockName.style.display = "inline-block";
+    if(wValues === true) {
+        blockName.style.paddingRight = "50px";
+    }
     container.appendChild(blockName);
+}
+export function drawRconTable(frameID) {
+    const container = document.getElementById(frameID);
+    container.innerHTML = "";
+
+    for(let i = 0; i < 2; i++) {
+        const rowEl = document.createElement("div");
+        rowEl.className = `rcon-row row-${i}`;
+        
+        const rowLabel = document.createElement("div");
+        rowLabel.className = "rcon-row-label";
+        rowLabel.textContent = i === 0 ? "Round#" : "rCi";
+        container.appendChild(rowLabel);
+        
+        for(let col = 0; col < 11; col++) {
+            const cell = document.createElement("div");
+            cell.className = "aes-cell";
+            cell.style.width = "40px";
+            cell.style.height = "40px";
+            cell.dataset.index = col;
+            cell.dataset.col = col;
+            cell.dataset.row = i;
+            cell.textContent = i === 0 ? col : rCon[col][0];
+            container.appendChild(cell);
+        }
+    }
+}
+export function drawRconVisual(frameID) {
+    const container = document.getElementById(frameID);
+    container.innerHTML = "";
+
+    for(let i = 0; i < 3; i++) {
+        const rowLabel = document.createElement("div");
+        rowLabel.textContent = i === 0 ? "rC(1)" : "sbox output";
+        rowLabel.className = `rcon-row row-${i}`;
+        if(i === 2) {
+            rowLabel.textContent = "rCon output"
+            rowLabel.style.marginBottom = "100px"
+        };
+        container.appendChild(rowLabel);
+        
+        for(let col = 0; col < 4; col++) {
+            const cell = document.createElement("div");
+            cell.className = "aes-cell";
+            cell.dataset.index = col;
+            cell.textContent = i === 0 ? rCon[1][col] : result[col];
+            if(i === 2) {
+                cell.textContent = rConout[col];
+                cell.style.marginLeft = "69px";
+            }
+            rowLabel.appendChild(cell);
+        }
+        container.appendChild(rowLabel);
+    }
+}
+//This function is too big need to pull out some of the logic into a smaller util function
+export function drawRconSvg(frameID) {
+    const container = document.getElementById(frameID);
+    const svg = document.getElementById("rCon-svg");
+    svg.innerHTML = "";
+
+    const row0 = Array.from(container.querySelectorAll(".row-0 .aes-cell"));
+    const row1 = Array.from(container.querySelectorAll(".row-1 .aes-cell"));
+    const row2 = Array.from(container.querySelectorAll(".row-2 .aes-cell"));
+    
+
+    const svgRect = svg.getBoundingClientRect();
+    svgArrowHead(svg);
+
+    for(let i = 0; i < 4; i++) {
+
+        const row0Rect = row0[i].getBoundingClientRect();
+        const row1Rect = row1[i].getBoundingClientRect();
+        const row2Rect = row2[i].getBoundingClientRect();
+        const midPoint = ((row0Rect.bottom - svgRect.top) + (row1Rect.top - svgRect.top)) / 2;
+
+        const line1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        const line2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        const line3 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        const line4 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+
+        line1.setAttribute("x1", row0Rect.left + row0Rect.width / 2 - svgRect.left);
+        line1.setAttribute("y1", row0Rect.bottom - svgRect.top);
+        line1.setAttribute("x2", row1Rect.left + row1Rect.width / 2 - svgRect.left);
+        line1.setAttribute("y2", midPoint - 30);
+        line1.setAttribute("stroke", "black");
+        line1.setAttribute("stroke-width", "2");
+        setTimeout(() => {
+            line1.setAttribute("marker-end", "url(#arrowhead)");
+            drawXorSymbolSvg(svg, row0Rect.left + row0Rect.width / 2 - svgRect.left, midPoint, 10);
+        }, 1000);
+        svg.appendChild(line1);
+
+        const line1Length = line1.getTotalLength();
+        line1.style.strokeDasharray = line1Length;
+        line1.style.strokeDashoffset = line1Length;
+        line1.style.transition = "stroke-dashoffset 1s ease-in-out";
+        svg.appendChild(line1);
+        void line1.getBoundingClientRect();
+        line1.style.strokeDashoffset = 0;
+
+        line2.setAttribute("x1", row1Rect.left + row0Rect.width / 2 - svgRect.left);
+        line2.setAttribute("y1", (row1Rect.bottom - row1Rect.height) - svgRect.top);
+        line2.setAttribute("x2", row1Rect.left + row1Rect.width / 2 - svgRect.left);
+        line2.setAttribute("y2", midPoint + 30);
+        line2.setAttribute("stroke", "black");
+        line2.setAttribute("stroke-width", "2");
+        setTimeout(() => {
+            line2.setAttribute("marker-end", "url(#arrowhead)");
+        }, 1000);
+        svg.appendChild(line2);
+
+        const line2Length = line2.getTotalLength();
+        line2.style.strokeDasharray = line2Length;
+        line2.style.strokeDashoffset = line2Length;
+        line2.style.transition = "stroke-dashoffset 1s ease-in-out";
+        svg.appendChild(line2);
+        void line2.getBoundingClientRect();
+        line2.style.strokeDashoffset = 0;
+
+        setTimeout(() => {
+            line3.setAttribute("x1", (row1Rect.left + row1Rect.width / 2 - svgRect.left));
+            line3.setAttribute("y1", midPoint);;
+            line3.setAttribute("x2", (row0Rect.left + row0Rect.width / 2 - svgRect.left) + 70);
+            line3.setAttribute("y2", midPoint);
+            line3.setAttribute("stroke", "black");
+            line3.setAttribute("stroke-width", "2");
+            svg.appendChild(line3);
+
+            const line3Length = line3.getTotalLength();
+            line3.style.strokeDasharray = line3Length;
+            line3.style.strokeDashoffset = line3Length;
+            line3.style.transition = "stroke-dashoffset 1s ease-in-out";
+            svg.appendChild(line3);
+            void line3.getBoundingClientRect();
+            line3.style.strokeDashoffset = 0;
+        }, 1000);
+
+        setTimeout(() => {
+            line4.setAttribute("x1", (row0Rect.left + row0Rect.width / 2 - svgRect.left) + 70);
+            line4.setAttribute("y1", midPoint);
+            line4.setAttribute("x2", (row1Rect.left + row1Rect.width / 2 - svgRect.left) + 70);
+            line4.setAttribute("y2", (row2Rect.top - row2Rect.height / 2) - svgRect.top);
+            line4.setAttribute("stroke", "black");
+            line4.setAttribute("stroke-width", "2");
+
+            setTimeout(() => {
+                line4.setAttribute("marker-end", "url(#arrowhead)");
+            }, 1000);
+            svg.appendChild(line4);
+
+            const line4Length = line4.getTotalLength();
+            line4.style.strokeDasharray = line4Length;
+            line4.style.strokeDashoffset = line4Length;
+            line4.style.transition = "stroke-dashoffset 1s ease-in-out";
+            svg.appendChild(line4);
+            void line4.getBoundingClientRect();
+            line4.style.strokeDashoffset = 0;
+        }, 2000);
+    }
+}
+export function keyExpansionXor() {
+    const container = document.getElementById("key-expansion-xor-visual");
+    container.innerHTML = "";
+
+    for(let i = 0; i < 3; i++) {
+        const rowLabel = document.createElement("div");
+        rowLabel.id = `key-expansion-xor-row-${i}`;
+        //rowLabel.className = `xor-row row-${i}`;
+        rowLabel.textContent = i === 0 ? "k0" : "Next key";
+        
+        if(i === 2) rowLabel.style.marginBottom = "100px"
+        container.appendChild(rowLabel);
+        if(i === 1) {
+            rowLabel.style.paddingTop = "150px";
+            rowLabel.style.justifyItems = "start";
+            rowLabel.style.textAlign = "left";
+            //rowLabel.style.paddingLeft = "55px";
+            drawAesBlock(result, rowLabel.id, "rCon output", true, false)
+        }
+        for(let col = 0; col < 4; col++) {
+            const cell = document.createElement("div");
+            cell.id = `key-expansion-xor-cell-${i}-${col}`;
+            cell.className = `aes-col`;
+            cell.dataset.index = col;
+            cell.dataset.col = col;
+            cell.dataset.row = i;
+            rowLabel.appendChild(cell);
+            if(i === 1) continue;
+
+            i === 0 ? drawAesBlock(u8aToHexSpaced(key.subarray(col * 4, (col + 1) * 4)), cell.id,`w[${col}]`, true, false) :
+            drawAesBlock(u8aToHexSpaced(expandedKey.subarray((col + 4) * 4, ((col + 4) + 1) * 4)), cell.id,`w[${col + 4}]`, true, false);
+        }
+        container.appendChild(rowLabel);
+    }
+}
+export function keyExpansionXorSvg() {
+    const container = document.getElementById("key-expansion-xor-visual");
+    const svg = document.getElementById("key-expansion-xor-svg");
+    // Don't clear `container` here — `keyExpansionXor()` builds the DOM nodes.
+    svg.innerHTML = "";
+
+    // Select the cell elements inside each row
+    const row0 = Array.from(container.querySelectorAll("#key-expansion-xor-row-0 .aes-col"));
+    const row1 = Array.from(container.querySelectorAll("#key-expansion-xor-row-1 .aes-col"));
+    const row2 = Array.from(container.querySelectorAll("#key-expansion-xor-row-2 .aes-col"));
+
+    if (row0.length === 0 || row2.length === 0) return;
+
+    const svgRect = svg.getBoundingClientRect();
+    svgArrowHead(svg);
+
+    svgArrowHead(svg);
+
+    const count = Math.min(4, row0.length, row2.length);
+    for (let i = 0; i < count; i++) {
+        const row0Rect = row0[i].getBoundingClientRect();
+        const row1Rect = row1[i].getBoundingClientRect();
+        const row2Rect = row2[i].getBoundingClientRect();
+        
+        const xOrX = row0Rect.left + row0Rect.width / 2 - svgRect.left;
+        const xOrY = row1Rect.top - svgRect.top - 30;
+
+        drawXorSymbolSvg(svg, xOrX, xOrY, 10);
+        const line1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line1.setAttribute("x1", row0Rect.left + row0Rect.width / 2 - svgRect.left);
+        line1.setAttribute("y1", row0Rect.bottom - svgRect.top);
+        line1.setAttribute("x2", row2Rect.left + row2Rect.width / 2 - svgRect.left);
+        line1.setAttribute("y2", xOrY - 35);
+        line1.setAttribute("marker-end", "url(#arrowhead)");
+        line1.setAttribute("stroke", "black");
+        line1.setAttribute("stroke-width", "2");
+        svg.appendChild(line1);
+
+        const line2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line2.setAttribute("x1", row0Rect.left + row0Rect.width / 2 - svgRect.left);
+        line2.setAttribute("y1", xOrY);
+        line2.setAttribute("x2", row2Rect.left + row2Rect.width / 2 - svgRect.left);
+        line2.setAttribute("y2", row2Rect.top - svgRect.top - 30);
+        line2.setAttribute("marker-end", "url(#arrowhead)");
+        line2.setAttribute("stroke", "black");
+        line2.setAttribute("stroke-width", "2");
+        svg.appendChild(line2);
+    }
 }
 export function drawMixColumnsMathHeader(cell) {
     const container = document.getElementById("mix-columns-visual-math-header");

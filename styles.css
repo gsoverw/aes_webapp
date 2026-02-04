@@ -508,5 +508,63 @@ p {
     transform: scale(1.3);
     box-shadow: 0 0 25px rgba(0, 255, 0, 0.6);
 }
-
-
+#rCon-block2-wrapper {
+    margin-top: 100px;
+    position: relative;
+}
+#rCon-block1 {
+    width: 85%;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap : 5px;
+    align-items: center;
+    justify-items: center;
+}
+#rCon-block2 {
+    display: flex;
+    flex-direction: column;
+    gap: 175px;
+}
+#rCon-block2 > div {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    text-align: center;
+    align-items: center;
+}
+#rCon-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -9;
+    pointer-events: none;
+}
+#key-expansion-xor-visual-wrapper {
+    position: relative;
+    width: 100%;
+    margin-top: 50px;
+}
+#key-expansion-xor-visual {
+    margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+    gap: 200px;
+}
+#key-expansion-xor-visual > div {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    text-align: center;
+    align-items: center;
+}
+#key-expansion-xor-visual > div * {
+    justify-content: center;
+}
+#key-expansion-xor-svg{
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9;
+    pointer-events: none;
+}

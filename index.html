@@ -86,13 +86,6 @@
                         <svg id="sbox-visual-svg" width="100%" height="100%"></svg>
                     </div>
                 </div>
-                <div id="sBoxPanel">
-                    <h1>S-Box</h1>
-                    <canvas id="slideSboxFrame1" width="900" height="900"></canvas>
-                    <canvas id="slideSboxFrame2" width="900" height="900"></canvas>
-                    <canvas id="slideSboxFrame3" width="900" height="900"></canvas>
-                </div>
-
                 <div id="sbox-slider-wrapper">
                     <h2>S-Box</h2>
                     <div id="sbox-slider"></div>
@@ -113,8 +106,13 @@
                         NOTE: The last three elements of an rCon word are always [00].
                     </p>
                     <div id="rConVisual">
-                        <canvas id="rConCanvas0" width="600" height="150"></canvas>
-                        <canvas id="rConCanvas1" width="470" height="260"></canvas>
+                        <div id="rConVisualWrapper">
+                            <div id="rCon-block1"></div>
+                            <div id="rCon-block2-wrapper">
+                                <div id="rCon-block2"></div>
+                                <svg id="rCon-svg" width="100%" height="100%"></svg>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -125,25 +123,9 @@
                 <p>
                     Now we can finally start computing the values of K1 ( [w4] - [w7] ). 
                 </p>
-                <div id="xORSliding">
-                    <div id="slide0">
-                        <canvas id="slideCanvas0" width="470" height="260"></canvas>
-                    </div>
-                    <div id="slide1">
-                        <canvas id="slideArrowCanvas1" width="130" height="260"></canvas>
-                        <canvas id="slideCanvas1" width="470" height="260"></canvas>
-                    </div>
-                    <div id="slide2">
-                        <canvas id="slideArrowCanvas2" width="130" height="260"></canvas>
-                        <canvas id="slideCanvas2" width="470" height="260"></canvas>
-                    </div>
-                    <div id="slide3">
-                        <canvas id="slideArrowCanvas3" width="130" height="260"></canvas>
-                        <canvas id="slideCanvas3" width="470" height="260"></canvas>
-                    </div>
-                </div>
-                <div id="k1">
-                    <canvas id="k1Canvas" width="300" height="150"></canvas>
+                <div id="key-expansion-xor-visual-wrapper">
+                    <div id="key-expansion-xor-visual"></div>
+                    <svg id="key-expansion-xor-svg" width="100%" height="100%"></svg>
                 </div>
                 <p>
                     We have found k1. Which means we can use k1 to find k2 ( [w8] - [w11] ). Keep repeating this process until we have k1 - k10.
@@ -186,9 +168,10 @@
                 The IT takes our plaintext and xOr that with our original key (k0).
             </p>
             <p>Each element of P is xORed with its corresponding element in k0.</p>
-            <p>P[0] ⊕ k0[0], P[1] ⊕ k0[1] ... ect</p>
             <div id="initialTransformationVisual">
-                <canvas id="itVisual" width="1000" height="300"></canvas>
+                <div id="ITV-block1"></div>
+                <div id="ITV-block2"></div>
+                <div id="ITV-block3"></div>
             </div>
         </div>
         <div id="encryptionSteps">

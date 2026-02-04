@@ -1,17 +1,13 @@
 import "./newAESLogic.js"
-import { u8aToHexSpaced, iniBlock, allAfterSubBytes, allAfterShiftRows, allAfterMixColumns, rowToColumnWise, allAfterAddRoundKey } from "./newAESLogic.js"
-import { keySchedule, drawRcon, drawxOR, rCon, drawArrayBlock, sliderArrows, 
-         drawInitialTransformation, drawAesBlock, fullAesExample, drawKeyExpansionTable, drawSbox,
-         drawSboxVisualLines } from "./draw.js";
-import { sboxExampleAnimation, subBytesArrowAnimation, shiftRowsAnimationClick, mixColumnsMathClick, 
+import { u8aToHexSpaced, iniBlock, allAfterSubBytes, allAfterShiftRows, allAfterMixColumns, rowToColumnWise, allAfterAddRoundKey, pt } from "./newAESLogic.js"
+import { keySchedule, drawAesBlock, fullAesExample, drawKeyExpansionTable, drawSbox,
+         drawSboxVisualLines, drawRconTable, drawRconVisual, drawRconSvg, keyExpansionXor, keyExpansionXorSvg } from "./draw.js";
+import { subBytesArrowAnimation, shiftRowsAnimationClick, mixColumnsMathClick, 
          addRoundKeyAnimation, rotWordAnimation, newSboxAnimation } from "./animations.js";
 import { roundKeys } from "./aesLogic.js"
 import { expandedKey, key, afterAllRotWord, afterAllSubWord } from "./newAESLogic.js";
 
 
-const rConout = ["8b", "84", "eb", "01"];
-const result = ["8a", "84", "eb", "01"];
-const test2 = ["sbox", "sbox", "sbox", "sbox"]
 const fixedMatrix = [
     0x02, 0x03, 0x01, 0x01,
     0x01, 0x02, 0x03, 0x01,
@@ -35,28 +31,21 @@ drawSbox();
 newSboxAnimation();
 drawSboxVisualLines()
 
+drawRconTable("rCon-block1");
+drawRconVisual("rCon-block2");
+drawRconSvg("rCon-block2");
 
+keyExpansionXor();
 
-drawRcon("rConCanvas0");
-drawxOR(rCon[1], result, rConout, ["rC1", "sb", "out"], "rConCanvas1");
-
-//Drawings for the 'Last Part div'
-drawxOR(rConout, roundKeys[0][0], roundKeys[1][0], ["g()", "w0", "w4"], "slideCanvas0");
-drawxOR(roundKeys[1][0], roundKeys[0][1], roundKeys[1][1], ["w4", "w1", "w5"], "slideCanvas1");
-drawxOR(roundKeys[1][1], roundKeys[0][2], roundKeys[1][2], ["w5", "w2", "w6"], "slideCanvas2");
-drawxOR(roundKeys[1][2], roundKeys[0][2], roundKeys[1][3], ["w6", "w3", "w7"], "slideCanvas3");
 
 drawKeyExpansionTable();
 
-//sliderArrows("slideArrowCanvas1")
-//sliderArrows("slideArrowCanvas2")
-//sliderArrows("slideArrowCanvas3")
+keyExpansionXorSvg();
+//drawArrayBlock(u8aToHexSpaced(expandedKey.subarray(16, 32)), 1, "k1Canvas")
 
-drawArrayBlock(u8aToHexSpaced(expandedKey.subarray(16, 32)), 1, "k1Canvas")
-
-//drawFullKeyExpansion(30, "keCalculation")
-
-drawInitialTransformation("itVisual")
+drawAesBlock(u8aToHexSpaced(pt), "ITV-block1", "plaintext", false)
+drawAesBlock(u8aToHexSpaced(key), "ITV-block2", "k0", false)
+drawAesBlock(u8aToHexSpaced(iniBlock), "ITV-block3", "stateArray", false)
 
 drawAesBlock(rowToColumnWise(iniBlock), "sub-bytes-visual-block1", "stateArray")
 drawAesBlock(u8aToHexSpaced(rowToColumnWise(allAfterSubBytes[0])), "sub-bytes-visual-block2", "After subBytes")
