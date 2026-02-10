@@ -543,6 +543,19 @@ p {
 #key-expansion-xor-visual-wrapper {
     position: relative;
     width: 100%;
+    height: 650px;
+    margin-top: 50px;
+}
+#key-expansion-xor-visual {
+    width: 70%;
+    margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+    gap: 200px;
+}
+/* #key-expansion-xor-visual-wrapper {
+    position: relative;
+    width: 100%;
     margin-top: 50px;
 }
 #key-expansion-xor-visual {
@@ -567,4 +580,4 @@ p {
     height: 100%;
     z-index: 9;
     pointer-events: none;
-}
+} */

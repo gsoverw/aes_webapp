@@ -1,9 +1,9 @@
 import "./newAESLogic.js"
 import { u8aToHexSpaced, iniBlock, allAfterSubBytes, allAfterShiftRows, allAfterMixColumns, rowToColumnWise, allAfterAddRoundKey, pt } from "./newAESLogic.js"
 import { keySchedule, drawAesBlock, fullAesExample, drawKeyExpansionTable, drawSbox,
-         drawSboxVisualLines, drawRconTable, drawRconVisual, drawRconSvg, keyExpansionXor, keyExpansionXorSvg } from "./draw.js";
+         drawSboxVisualLines, drawRconTable, drawRconVisual, drawRconSvg, keyExpansionXor, keyExpansionXorSvg, keyExpansionXor1 } from "./draw.js";
 import { subBytesArrowAnimation, shiftRowsAnimationClick, mixColumnsMathClick, 
-         addRoundKeyAnimation, rotWordAnimation, newSboxAnimation } from "./animations.js";
+         addRoundKeyAnimation, rotWordAnimation, newSboxAnimation, keyExpansionXorAnimation } from "./animations.js";
 import { roundKeys } from "./aesLogic.js"
 import { expandedKey, key, afterAllRotWord, afterAllSubWord } from "./newAESLogic.js";
 
@@ -35,12 +35,12 @@ drawRconTable("rCon-block1");
 drawRconVisual("rCon-block2");
 drawRconSvg("rCon-block2");
 
-keyExpansionXor();
-
-
+//keyExpansionXor();
+keyExpansionXor1();
+keyExpansionXorSvg();
+keyExpansionXorAnimation();
 drawKeyExpansionTable();
 
-keyExpansionXorSvg();
 //drawArrayBlock(u8aToHexSpaced(expandedKey.subarray(16, 32)), 1, "k1Canvas")
 
 drawAesBlock(u8aToHexSpaced(pt), "ITV-block1", "plaintext", false)

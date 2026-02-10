@@ -542,35 +542,86 @@ export function keyExpansionXor() {
     container.innerHTML = "";
 
     for(let i = 0; i < 3; i++) {
-        const rowLabel = document.createElement("div");
-        rowLabel.id = `key-expansion-xor-row-${i}`;
-        //rowLabel.className = `xor-row row-${i}`;
-        rowLabel.textContent = i === 0 ? "k0" : "Next key";
-        
-        if(i === 2) rowLabel.style.marginBottom = "100px"
-        container.appendChild(rowLabel);
+        const containerEl = document.createElement("div");
+        containerEl.id = `key-expansion-xor-text-${i}`;
+        containerEl.className = "xor-text col-0";
+        containerEl.style.position = "absolute";
+        containerEl.style.top = `${i * 250 + 15}px`;
+        containerEl.textContent = i === 0 ? "k0 = " : i === 1 ? "rCon output" : "Next key (k1) = ";
+        containerEl.style.fontWeight = "bold";
+        container.appendChild(containerEl); 
         if(i === 1) {
-            rowLabel.style.paddingTop = "150px";
-            rowLabel.style.justifyItems = "start";
-            rowLabel.style.textAlign = "left";
-            //rowLabel.style.paddingLeft = "55px";
-            drawAesBlock(result, rowLabel.id, "rCon output", true, false)
+            containerEl.style.top = `315px`;
+            drawAesBlock(rConout, containerEl.id, "rCon output", true, false)
         }
-        for(let col = 0; col < 4; col++) {
-            const cell = document.createElement("div");
-            cell.id = `key-expansion-xor-cell-${i}-${col}`;
-            cell.className = `aes-col`;
-            cell.dataset.index = col;
-            cell.dataset.col = col;
-            cell.dataset.row = i;
-            rowLabel.appendChild(cell);
-            if(i === 1) continue;
-
-            i === 0 ? drawAesBlock(u8aToHexSpaced(key.subarray(col * 4, (col + 1) * 4)), cell.id,`w[${col}]`, true, false) :
-            drawAesBlock(u8aToHexSpaced(expandedKey.subarray((col + 4) * 4, ((col + 4) + 1) * 4)), cell.id,`w[${col + 4}]`, true, false);
-        }
-        container.appendChild(rowLabel);
     }
+    for(let i = 0; i < 8; i++) {
+        const ele = document.createElement("div");
+        ele.className = `aes-ele aes-ele-${i}`;
+        ele.id = `key-expansion-xor-ele-${i}`;
+        ele.style.textAlign = "center";
+        ele.style.position = "absolute";
+        ele.style.left = `${300 + (i % 4) * 250}px`;
+        if(i > 3) {
+            ele.style.top = `500px`;
+        } else {
+            ele.style.top = `0px`;
+        }
+        container.appendChild(ele);
+        drawAesBlock(i < 4 ? u8aToHexSpaced(key).slice(i * 4, (i * 4) + 4) : expandedKey.subarray((i * 4), (i * 4) + 4), ele.id, i < 4 ? `w${i}` : `w${i}`, true, false);
+    }
+}
+//rewrite the keyExpansionXpo function so it can be easier to use for the animaiton 
+export function keyExpansionXor1() {
+    const container = document.getElementById("key-expansion-xor-visual");
+    container.innerHTML = "";
+
+    for(let i = 0; i < 3; i++) {
+        const textEl = document.createElement("div");
+        textEl.id = "key-expansion-xor-text";
+        textEl.className = `xor-text num-${i}`;
+        textEl.style.position = "absolute";
+        textEl.style.top = `${i * 250 + 15}px`;
+        if(i === 1) { textEl.style.top = `350px`; }
+        textEl.textContent = i === 0 ? "k0 = " : i === 1 ? "rCon output" : "Next key (k1) = ";
+        textEl.style.fontWeight = "bold";
+        container.appendChild(textEl);
+    }
+    for(let i = 0; i < 8; i++) {
+        const wEle = document.createElement("div");
+        wEle.className = `key-expansion-xor w-aes-ele-${i}`;
+        wEle.id = `key-expansion-xor-w-ele-${i}`;
+        wEle.textContent = `w${i}`;
+        wEle.style.textAlign = "center";
+        wEle.style.fontWeight = "bold";
+        wEle.style.position = "absolute";
+        wEle.style.left = `${430 + (i % 4) * 250}px`;
+        if(i > 3) {
+            wEle.style.top = `505px`;
+        }
+        container.appendChild(wEle);
+    }
+    const rConEle = document.createElement("div");
+    rConEle.id = "key-expansion-xor-rcon-ele";
+    rConEle.style.position = "absolute";
+    rConEle.style.top = `315px`;
+    container.appendChild(rConEle);
+    drawAesBlock(rConout, rConEle.id, "", true, false);
+    for(let i = 0; i < 8; i++) {
+        const ele = document.createElement("div");
+        ele.className = `key-expansion-xor aes-ele`;
+        ele.id = `key-expansion-xor-ele-${i}`;
+        ele.style.textAlign = "center";
+        ele.style.position = "absolute";
+        ele.style.left = `${300 + (i % 4) * 250}px`;
+        if(i > 3) { 
+            ele.style.top = `500px`;
+            ele.style.opacity = "0";
+        }
+        container.appendChild(ele);
+        drawAesBlock(i < 4 ? u8aToHexSpaced(key).slice(i * 4, (i * 4) + 4) : expandedKey.subarray((i * 4), (i * 4) + 4), ele.id, "", true, false);
+    }
+
 }
 export function keyExpansionXorSvg() {
     const container = document.getElementById("key-expansion-xor-visual");
@@ -579,46 +630,103 @@ export function keyExpansionXorSvg() {
     svg.innerHTML = "";
 
     // Select the cell elements inside each row
-    const row0 = Array.from(container.querySelectorAll("#key-expansion-xor-row-0 .aes-col"));
-    const row1 = Array.from(container.querySelectorAll("#key-expansion-xor-row-1 .aes-col"));
-    const row2 = Array.from(container.querySelectorAll("#key-expansion-xor-row-2 .aes-col"));
-
-    if (row0.length === 0 || row2.length === 0) return;
-
+    const allEle = Array.from(container.querySelectorAll(".aes-ele"));
+    const rConOutput = container.querySelector("#key-expansion-xor-rcon-ele");
     const svgRect = svg.getBoundingClientRect();
     svgArrowHead(svg);
 
-    svgArrowHead(svg);
+    //const count = Math.min(4, row0.length, row2.length);
+    for (let i = 0; i < 4; i++) {
+        const eleRect0 = allEle[i].getBoundingClientRect();
+        const eleRect1 = allEle[i + 4].getBoundingClientRect();
+        const rConRect = rConOutput.getBoundingClientRect();
 
-    const count = Math.min(4, row0.length, row2.length);
-    for (let i = 0; i < count; i++) {
-        const row0Rect = row0[i].getBoundingClientRect();
-        const row1Rect = row1[i].getBoundingClientRect();
-        const row2Rect = row2[i].getBoundingClientRect();
-        
-        const xOrX = row0Rect.left + row0Rect.width / 2 - svgRect.left;
-        const xOrY = row1Rect.top - svgRect.top - 30;
-
+        const xOrX = eleRect0.left + eleRect0.width / 2 - svgRect.left;
+        const xOrY = rConRect.top - svgRect.top + 20;
         drawXorSymbolSvg(svg, xOrX, xOrY, 10);
+
+        if(i === 0) {
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.id = "rcon-line-0";
+            line.classList.add("svg-line");
+            line.setAttribute("x1", xOrX - 200);
+            line.setAttribute("y1", xOrY);
+            line.setAttribute("x2", xOrX - 45);
+            line.setAttribute("y2", xOrY);
+            line.setAttribute("marker-end", "url(#arrowhead)");
+            line.setAttribute("stroke", "black");
+            line.setAttribute("stroke-width", "2");
+            svg.appendChild(line);
+        }
         const line1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        line1.setAttribute("x1", row0Rect.left + row0Rect.width / 2 - svgRect.left);
-        line1.setAttribute("y1", row0Rect.bottom - svgRect.top);
-        line1.setAttribute("x2", row2Rect.left + row2Rect.width / 2 - svgRect.left);
-        line1.setAttribute("y2", xOrY - 35);
+        line1.id = "rcon-line-1";
+        line1.classList.add("svg-line");
+        line1.setAttribute("x1", eleRect0.left + eleRect0.width / 2 - svgRect.left);
+        line1.setAttribute("y1", eleRect0.bottom - svgRect.top + 20);
+        line1.setAttribute("x2", eleRect1.left + eleRect1.width / 2 - svgRect.left);
+        line1.setAttribute("y2", xOrY - 40);
         line1.setAttribute("marker-end", "url(#arrowhead)");
         line1.setAttribute("stroke", "black");
         line1.setAttribute("stroke-width", "2");
         svg.appendChild(line1);
 
         const line2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        line2.setAttribute("x1", row0Rect.left + row0Rect.width / 2 - svgRect.left);
-        line2.setAttribute("y1", xOrY);
-        line2.setAttribute("x2", row2Rect.left + row2Rect.width / 2 - svgRect.left);
-        line2.setAttribute("y2", row2Rect.top - svgRect.top - 30);
+        line2.id = "rcon-line-2";
+        line2.classList.add("svg-line");
+        line2.setAttribute("x1", eleRect0.left + eleRect0.width / 2 - svgRect.left);
+        line2.setAttribute("y1", xOrY + 20);
+        line2.setAttribute("x2", eleRect1.left + eleRect1.width / 2 - svgRect.left);
+        line2.setAttribute("y2", eleRect1.top - svgRect.top - 30);
         line2.setAttribute("marker-end", "url(#arrowhead)");
         line2.setAttribute("stroke", "black");
         line2.setAttribute("stroke-width", "2");
         svg.appendChild(line2);
+
+        if(i === 3) break;
+        const line3 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line3.id = "rcon-line-3";
+        line3.classList.add("svg-line");
+        line3.setAttribute("x1", eleRect0.left + eleRect0.width / 2 - svgRect.left);
+        line3.setAttribute("y1", eleRect1.top - svgRect.top + 50);
+        line3.setAttribute("x2", eleRect1.left + eleRect1.width / 2 - svgRect.left);
+        line3.setAttribute("y2", eleRect1.top - svgRect.top + 100);
+        line3.setAttribute("stroke", "black");
+        line3.setAttribute("stroke-width", "2");
+        svg.appendChild(line3);
+
+        const line4 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line4.id = "rcon-line-4";
+        line4.classList.add("svg-line");
+        line4.setAttribute("x1", eleRect0.left + eleRect0.width / 2 - svgRect.left);
+        line4.setAttribute("y1", eleRect1.top - svgRect.top + 100);
+        line4.setAttribute("x2", eleRect1.left + eleRect1.width / 2 - svgRect.left + 120);
+        line4.setAttribute("y2", eleRect1.top - svgRect.top + 100);
+        line4.setAttribute("stroke", "black");
+        line4.setAttribute("stroke-width", "2");
+        svg.appendChild(line4);
+
+        const line5 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line5.id = "rcon-line-5";
+        line5.classList.add("svg-line");
+        line5.setAttribute("x1", eleRect1.left + eleRect1.width / 2 - svgRect.left + 120);
+        line5.setAttribute("y1", eleRect1.top - svgRect.top + 100);
+        line5.setAttribute("x2", eleRect1.left + eleRect1.width / 2 - svgRect.left + 120);
+        line5.setAttribute("y2", eleRect1.top - svgRect.top - 165);
+        line5.setAttribute("stroke", "black");
+        line5.setAttribute("stroke-width", "2");
+        svg.appendChild(line5);
+
+        const line6 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line6.id = "rcon-line-6";
+        line6.classList.add("svg-line");
+        line6.setAttribute("x1", eleRect1.left + eleRect1.width / 2 - svgRect.left + 120);
+        line6.setAttribute("y1", eleRect1.top - svgRect.top - 165);
+        line6.setAttribute("x2", eleRect1.left + eleRect1.width / 2 - svgRect.left + 205);
+        line6.setAttribute("y2", eleRect1.top - svgRect.top - 165);
+        line6.setAttribute("marker-end", "url(#arrowhead)");
+        line6.setAttribute("stroke", "black");
+        line6.setAttribute("stroke-width", "2");
+        svg.appendChild(line6);
     }
 }
 export function drawMixColumnsMathHeader(cell) {
